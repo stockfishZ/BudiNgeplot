@@ -1,2 +1,4 @@
-# BodeNgeplot
-A project to help me to do bode plot, i guess
+# BudiNgeplot
+> *"Budi males bikin BodePlot sendiri"*
+
+An authoritative, web-based Bode plot studio and homework breakdown generator.

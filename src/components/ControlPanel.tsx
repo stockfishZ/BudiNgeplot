@@ -1,11 +1,12 @@
 import React from 'react';
-import { Sliders, Code, List, Eye, CheckSquare } from 'lucide-react';
+import { Sliders, Code, List, Eye, CheckSquare, AlertTriangle } from 'lucide-react';
 
 export interface Presets {
   name: string;
   num: number[];
   den: number[];
   expr: string;
+  zpk?: { gain: string; zeros: string; poles: string };
 }
 
 export const HOMEWORK_PRESETS: Presets[] = [
@@ -13,31 +14,36 @@ export const HOMEWORK_PRESETS: Presets[] = [
     name: '2nd-Order Underdamped (ζ = 0.4, ωₙ = 5)',
     num: [25],
     den: [1, 4, 25],
-    expr: '25 / (s^2 + 4*s + 25)'
+    expr: '25 / (s^2 + 4*s + 25)',
+    zpk: { gain: '25', zeros: '', poles: '-2+4.58j, -2-4.58j' }
   },
   {
     name: 'Integrator + Lag-Lead Network',
     num: [10, 20],
     den: [1, 10, 0],
-    expr: '10*(s + 2) / (s*(s + 10))'
+    expr: '10*(s + 2) / (s*(s + 10))',
+    zpk: { gain: '10', zeros: '-2', poles: '0, -10' }
   },
   {
     name: 'Non-Minimum Phase Zero (Right Half Plane Zero)',
     num: [-2, 2],
     den: [0.1, 1.1, 1],
-    expr: '2*(1 - s) / ((s + 1)*(0.1*s + 1))'
+    expr: '2*(1 - s) / ((s + 1)*(0.1*s + 1))',
+    zpk: { gain: '20', zeros: '1', poles: '-1, -10' }
   },
   {
     name: '3rd-Order System with Resonant Peak',
     num: [100],
     den: [1, 2, 50, 0],
-    expr: '100 / (s*(s^2 + 2*s + 50))'
+    expr: '100 / (s*(s^2 + 2*s + 50))',
+    zpk: { gain: '100', zeros: '', poles: '0, -1+7j, -1-7j' }
   },
   {
     name: 'High Gain Unstable Control System',
     num: [50],
     den: [1, 6, 11, 6],
-    expr: '50 / (s^3 + 6*s^2 + 11*s + 6)'
+    expr: '50 / (s^3 + 6*s^2 + 11*s + 6)',
+    zpk: { gain: '50', zeros: '', poles: '-1, -2, -3' }
   }
 ];
 
@@ -45,11 +51,18 @@ interface ControlPanelProps {
   numStr: string;
   denStr: string;
   exprStr: string;
-  inputMode: 'poly' | 'expr';
+  zpkGainStr: string;
+  zpkZerosStr: string;
+  zpkPolesStr: string;
+  inputMode: 'poly' | 'expr' | 'zpk';
+  exprError?: string | null;
   onNumChange: (val: string) => void;
   onDenChange: (val: string) => void;
   onExprChange: (val: string) => void;
-  onInputModeChange: (mode: 'poly' | 'expr') => void;
+  onZpkGainChange: (val: string) => void;
+  onZpkZerosChange: (val: string) => void;
+  onZpkPolesChange: (val: string) => void;
+  onInputModeChange: (mode: 'poly' | 'expr' | 'zpk') => void;
   onSelectPreset: (preset: Presets) => void;
   omegaMinPower: number;
   omegaMaxPower: number;
@@ -69,10 +82,17 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   numStr,
   denStr,
   exprStr,
+  zpkGainStr,
+  zpkZerosStr,
+  zpkPolesStr,
   inputMode,
+  exprError,
   onNumChange,
   onDenChange,
   onExprChange,
+  onZpkGainChange,
+  onZpkZerosChange,
+  onZpkPolesChange,
   onInputModeChange,
   onSelectPreset,
   omegaMinPower,
@@ -95,7 +115,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           <Sliders size={18} />
           Transfer Function Controls
         </h2>
-        <div style={{ display: 'flex', gap: '0.25rem' }}>
+        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
           <button
             className={`btn btn-sm ${inputMode === 'poly' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => onInputModeChange('poly')}
@@ -107,6 +127,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             onClick={() => onInputModeChange('expr')}
           >
             Expression [String]
+          </button>
+          <button
+            className={`btn btn-sm ${inputMode === 'zpk' ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => onInputModeChange('zpk')}
+          >
+            ZPK Form [Zeros/Poles/K]
           </button>
         </div>
       </div>
@@ -137,7 +163,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
 
       {/* Inputs */}
-      {inputMode === 'poly' ? (
+      {inputMode === 'poly' && (
         <>
           <div className="form-group">
             <label className="form-label">
@@ -171,7 +197,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             </small>
           </div>
         </>
-      ) : (
+      )}
+
+      {inputMode === 'expr' && (
         <div className="form-group">
           <label className="form-label">
             Math Expression H(s)
@@ -179,13 +207,74 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           <input
             type="text"
             className="input-text"
+            style={{
+              borderColor: exprError ? '#DC2626' : undefined,
+              backgroundColor: exprError ? '#FEF2F2' : undefined
+            }}
             value={exprStr}
             onChange={(e) => onExprChange(e.target.value)}
             placeholder="e.g. 10*(s+2) / (s*(s^2 + 4*s + 25))"
           />
-          <small style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
-            Use standard math operators <code className="mono-val">* / + - ^</code> with parameter <code className="mono-val">s</code>
-          </small>
+          {exprError ? (
+            <div style={{
+              marginTop: '0.35rem',
+              padding: '0.35rem 0.6rem',
+              backgroundColor: '#FEF3C7',
+              color: '#B45309',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.78rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontFamily: 'var(--font-sans)',
+              fontWeight: 600,
+              border: '1px solid #FCD34D'
+            }}>
+              <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+              <span>Incomplete / Invalid Expression: {exprError} (holding at last valid plot)</span>
+            </div>
+          ) : (
+            <small style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+              Use standard math operators <code className="mono-val">* / + - ^</code> with parameter <code className="mono-val">s</code>
+            </small>
+          )}
+        </div>
+      )}
+
+      {inputMode === 'zpk' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+          <div className="form-group">
+            <label className="form-label">Gain (K)</label>
+            <input
+              type="text"
+              className="input-text"
+              value={zpkGainStr}
+              onChange={(e) => onZpkGainChange(e.target.value)}
+              placeholder="e.g. 10"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Zeros (z_i)</label>
+            <input
+              type="text"
+              className="input-text"
+              value={zpkZerosStr}
+              onChange={(e) => onZpkZerosChange(e.target.value)}
+              placeholder="e.g. -2, 3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Poles (p_j)</label>
+            <input
+              type="text"
+              className="input-text"
+              value={zpkPolesStr}
+              onChange={(e) => onZpkPolesChange(e.target.value)}
+              placeholder="e.g. 0, -10"
+            />
+          </div>
         </div>
       )}
 

@@ -43,6 +43,14 @@ body {
   min-height: 100dvh;
 }
 
+/* Prevent text selection highlight during interactive chart drag-zoom */
+svg, svg text, .no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 /* Base Headings */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);

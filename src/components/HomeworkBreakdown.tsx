@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BodeAnalysisResult } from '../utils/bodeEngine';
 import { MathView } from './MathView';
+import { fmtNum } from '../utils/formatUtils';
 import { Copy, Check, FileText, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react';
 
 interface HomeworkBreakdownProps {
@@ -8,10 +9,16 @@ interface HomeworkBreakdownProps {
 }
 
 export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({ analysis }) => {
-  const [copied, setCopied] = useState(false);
+  const [copiedType, setCopiedType] = useState<string | null>(null);
 
-  const handleCopyLatex = () => {
-    const fullLatexText = `% --- BodeNgeplot Homework Solution Export ---
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedType(label);
+    setTimeout(() => setCopiedType(null), 2000);
+  };
+
+  const handleCopyFullLatex = () => {
+    const fullLatexText = `% --- BudiNgeplot Homework Solution Export ---
 \\documentclass{article}
 \\usepackage{amsmath}
 \\begin{document}
@@ -28,24 +35,26 @@ Canonical Bode Factorized Form:
 \\hline
 Factor & Type & Corner Frequency $\\omega_c$ & Magnitude Slope \\\\
 \\hline
-${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c.toFixed(2) + ' rad/s' : 'N/A'} & ${f.slopeDbDec > 0 ? '+' + f.slopeDbDec : f.slopeDbDec} dB/dec \\\\`).join('\n')}
+${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? fmtNum(f.omega_c, 2) + ' rad/s' : 'N/A'} & ${f.slopeDbDec > 0 ? '+' + f.slopeDbDec : f.slopeDbDec} dB/dec \\\\`).join('\n')}
 \\hline
 \\end{tabular}
 
 \\subsection*{Stability and Margin Derivations}
 \\begin{itemize}
-  \\item Gain Crossover Frequency: $\\omega_{gc} = ${analysis.omega_gc !== null ? analysis.omega_gc.toFixed(3) + ' \\text{ rad/s}' : '\\text{N/A}'}$
-  \\item Phase Margin: $\\text{PM} = ${analysis.phaseMargin !== null ? analysis.phaseMargin.toFixed(2) + '^\\circ' : '\\text{N/A}'}$
-  \\item Phase Crossover Frequency: $\\omega_{pc} = ${analysis.omega_pc !== null ? analysis.omega_pc.toFixed(3) + ' \\text{ rad/s}' : '\\text{N/A}'}$
-  \\item Gain Margin: $\\text{GM} = ${analysis.gainMarginDb !== null ? analysis.gainMarginDb.toFixed(2) + ' \\text{ dB}' : '\\text{N/A}'}$
+  \\item Gain Crossover Frequency: $\\omega_{gc} = ${analysis.omega_gc !== null ? fmtNum(analysis.omega_gc, 3) + ' \\text{ rad/s}' : '\\text{N/A}'}$
+  \\item Phase Margin: $\\text{PM} = ${analysis.phaseMargin !== null ? fmtNum(analysis.phaseMargin, 2) + '^\\circ' : '\\text{N/A}'}$
+  \\item Phase Crossover Frequency: $\\omega_{pc} = ${analysis.omega_pc !== null ? fmtNum(analysis.omega_pc, 3) + ' \\text{ rad/s}' : '\\text{N/A}'}$
+  \\item Gain Margin: $\\text{GM} = ${analysis.gainMarginDb !== null ? fmtNum(analysis.gainMarginDb, 2) + ' \\text{ dB}' : '\\text{N/A}'}$
   \\item Stability Status: \\textbf{${analysis.stabilityStatus}}
 \\end{itemize}
 
 \\end{document}`;
+    copyToClipboard(fullLatexText, 'Full LaTeX');
+  };
 
-    navigator.clipboard.writeText(fullLatexText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyEqLatex = () => {
+    const text = `${analysis.latexTF}\n\n${analysis.latexCanonical}`;
+    copyToClipboard(text, 'Equations');
   };
 
   const getStatusBadge = () => {
@@ -111,10 +120,16 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
           <FileText size={18} />
           Homework Step-by-Step Solution Breakdown
         </h2>
-        <button className="btn btn-secondary btn-sm no-print" onClick={handleCopyLatex}>
-          {copied ? <Check size={14} color="green" /> : <Copy size={14} />}
-          {copied ? 'Copied LaTeX!' : 'Copy LaTeX Code'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.35rem' }}>
+          <button className="btn btn-secondary btn-sm no-print" onClick={handleCopyEqLatex}>
+            {copiedType === 'Equations' ? <Check size={14} color="green" /> : <Copy size={14} />}
+            {copiedType === 'Equations' ? 'Copied Equations!' : 'Copy Equations'}
+          </button>
+          <button className="btn btn-secondary btn-sm no-print" onClick={handleCopyFullLatex}>
+            {copiedType === 'Full LaTeX' ? <Check size={14} color="green" /> : <Copy size={14} />}
+            {copiedType === 'Full LaTeX' ? 'Copied Full LaTeX!' : 'Copy Full Document'}
+          </button>
+        </div>
       </div>
 
       {/* Stability Banner */}
@@ -138,11 +153,11 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
         <div style={{ display: 'flex', gap: '1.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
           <div>
             <span style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>GM: </span>
-            <strong>{analysis.gainMarginDb !== null ? `${analysis.gainMarginDb.toFixed(2)} dB` : '∞'}</strong>
+            <strong>{analysis.gainMarginDb !== null ? `${fmtNum(analysis.gainMarginDb, 2)} dB` : '∞'}</strong>
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>PM: </span>
-            <strong>{analysis.phaseMargin !== null ? `${analysis.phaseMargin.toFixed(1)}°` : 'N/A'}</strong>
+            <strong>{analysis.phaseMargin !== null ? `${fmtNum(analysis.phaseMargin, 1)}°` : 'N/A'}</strong>
           </div>
         </div>
       </div>
@@ -178,7 +193,7 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
           <tr>
             <th>Factor Component</th>
             <th>Type</th>
-            <th>Corner Freq (ω_c)</th>
+            <th>Corner Freq (<MathView latex="\omega_c" />)</th>
             <th>Mag Slope</th>
             <th>Phase Range</th>
           </tr>
@@ -193,13 +208,13 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
                 {f.name}
               </td>
               <td>
-                {f.omega_c > 0 ? `${f.omega_c.toFixed(2)} rad/s` : '—'}
+                {f.omega_c > 0 ? `${fmtNum(f.omega_c, 2)} rad/s` : '—'}
               </td>
               <td style={{ color: f.slopeDbDec > 0 ? 'green' : f.slopeDbDec < 0 ? 'red' : 'inherit', fontWeight: 'bold' }}>
                 {f.slopeDbDec > 0 ? `+${f.slopeDbDec}` : f.slopeDbDec} dB/dec
               </td>
               <td>
-                {f.phaseLow}° → {f.phaseHigh}°
+                {fmtNum(f.phaseLow, 0)}° → {fmtNum(f.phaseHigh, 0)}°
               </td>
             </tr>
           ))}
@@ -212,14 +227,17 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
           Step-by-Step Stability Derivation
         </h4>
 
-        <div style={{ fontSize: '0.875rem', fontFamily: 'var(--font-sans)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+        <div style={{ fontSize: '0.875rem', fontFamily: 'var(--font-sans)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <div>
-            <strong>1. Gain Crossover Frequency (ω_gc):</strong>{' Frequency where $|H(j\\omega_{gc})| = 0 \\text{ dB} = 1.0$.'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+              <strong>1. Gain Crossover Frequency (<MathView latex="\omega_{gc}" />):</strong>
+              <span>Frequency where <MathView latex="|H(j\omega_{gc})| = 0\text{ dB} = 1,0" />.</span>
+            </div>
             {analysis.omega_gc !== null ? (
-              <div style={{ margin: '0.25rem 0 0.5rem 1rem' }}>
-                <MathView latex={`\\omega_{gc} = ${analysis.omega_gc.toFixed(3)} \\text{ rad/s}`} />
+              <div style={{ margin: '0.35rem 0 0.5rem 1rem' }}>
+                <MathView latex={`\\omega_{gc} = ${fmtNum(analysis.omega_gc, 3)} \\text{ rad/s}`} />
                 <br />
-                <MathView latex={`\\text{PM} = 180^\\circ + \\angle H(j\\omega_{gc}) = 180^\\circ + (${(analysis.phaseMargin! - 180).toFixed(1)}^\\circ) = \\mathbf{${analysis.phaseMargin!.toFixed(1)}^\\circ}`} />
+                <MathView latex={`\\text{PM} = 180^\\circ + \\angle H(j\\omega_{gc}) = 180^\\circ + (${fmtNum(analysis.phaseMargin! - 180, 1)}^\\circ) = \\mathbf{${fmtNum(analysis.phaseMargin!, 1)}^\\circ}`} />
               </div>
             ) : (
               <span style={{ color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>No 0 dB crossover detected within frequency range.</span>
@@ -227,12 +245,15 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
           </div>
 
           <div>
-            <strong>2. Phase Crossover Frequency (ω_pc):</strong>{' Frequency where $\\angle H(j\\omega_{pc}) = -180^\\circ$.'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+              <strong>2. Phase Crossover Frequency (<MathView latex="\omega_{pc}" />):</strong>
+              <span>Frequency where <MathView latex="\angle H(j\omega_{pc}) = -180^\circ" />.</span>
+            </div>
             {analysis.omega_pc !== null ? (
-              <div style={{ margin: '0.25rem 0 0.5rem 1rem' }}>
-                <MathView latex={`\\omega_{pc} = ${analysis.omega_pc.toFixed(3)} \\text{ rad/s}`} />
+              <div style={{ margin: '0.35rem 0 0.5rem 1rem' }}>
+                <MathView latex={`\\omega_{pc} = ${fmtNum(analysis.omega_pc, 3)} \\text{ rad/s}`} />
                 <br />
-                <MathView latex={`\\text{GM}_{\\text{dB}} = -20 \\log_{10} |H(j\\omega_{pc})| = \\mathbf{${analysis.gainMarginDb!.toFixed(2)} \\text{ dB}} \\quad (\\text{Linear GM} = ${analysis.gainMarginLinear?.toFixed(2)})`} />
+                <MathView latex={`\\text{GM}_{\\text{dB}} = -20 \\log_{10} |H(j\\omega_{pc})| = \\mathbf{${fmtNum(analysis.gainMarginDb!, 2)} \\text{ dB}} \\quad (\\text{Linear GM} = ${fmtNum(analysis.gainMarginLinear, 2)})`} />
               </div>
             ) : (
               <span style={{ color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>Phase does not cross -180° (Gain Margin is Infinite ∞).</span>
@@ -243,3 +264,4 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
     </div>
   );
 };
+

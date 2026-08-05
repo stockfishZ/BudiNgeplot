@@ -1,4 +1,4 @@
-name: Deploy BodeNgeplot to GitHub Pages
+name: Deploy BudiNgeplot to GitHub Pages
 
 on:
   push:

@@ -42,15 +42,16 @@ export const Header: React.FC<HeaderProps> = ({ reportMode, onToggleReportMode, 
               margin: 0,
               letterSpacing: '-0.01em'
             }}>
-              BodeNgeplot
+              BudiNgeplot
             </h1>
             <p style={{
-              fontSize: '0.75rem',
+              fontSize: '0.78rem',
               fontFamily: 'var(--font-sans)',
-              color: 'var(--color-border)',
+              color: 'var(--color-accent-gold-bright)',
+              fontWeight: 500,
               margin: 0
             }}>
-              Minimalist Bode Analysis & Homework Studio
+              "Budi males bikin BodePlot sendiri"
             </p>
           </div>
         </div>

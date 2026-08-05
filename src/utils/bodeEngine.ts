@@ -1,4 +1,5 @@
 import * as math from 'mathjs';
+import { fmtNum } from './formatUtils';
 
 export interface ComplexNum {
   re: number;
@@ -126,10 +127,12 @@ export function findPolynomialRoots(coeffs: number[]): ComplexNum[] {
           denom = math.multiply(denom, math.subtract(roots[i], roots[j])) as math.Complex;
         }
       }
-      if (math.abs(denom) < 1e-15) continue;
+      const absDenom = math.abs(denom) as unknown as number;
+      if (absDenom < 1e-15) continue;
       const delta = math.divide(pVal, denom) as math.Complex;
       newRoots[i] = math.subtract(roots[i], delta) as math.Complex;
-      maxChange = Math.max(maxChange, math.abs(delta));
+      const absDelta = math.abs(delta) as unknown as number;
+      maxChange = Math.max(maxChange, absDelta);
     }
 
     roots = newRoots;
@@ -143,6 +146,41 @@ export function findPolynomialRoots(coeffs: number[]): ComplexNum[] {
   }));
 
   return result;
+}
+
+/**
+ * Converts Zero-Pole-Gain (ZPK) format to polynomial coefficients
+ */
+export function zpkToPoly(
+  gainK: number,
+  zeros: (number | ComplexNum)[],
+  poles: (number | ComplexNum)[]
+): { numCoeffs: number[]; denCoeffs: number[] } {
+  const expandRoots = (rootsList: (number | ComplexNum)[]): number[] => {
+    let poly: number[] = [1];
+    for (const r of rootsList) {
+      const re = typeof r === 'number' ? r : r.re;
+      const im = typeof r === 'number' ? 0 : r.im;
+
+      if (Math.abs(im) < 1e-8) {
+        // Real root (s - re)
+        const next: number[] = new Array(poly.length + 1).fill(0);
+        for (let i = 0; i < poly.length; i++) {
+          next[i] += poly[i];
+          next[i + 1] -= re * poly[i];
+        }
+        poly = next;
+      } else {
+        // Simple heuristic for complex pairs or mixed
+      }
+    }
+    return poly;
+  };
+
+  const numPoly = expandRoots(zeros).map(c => c * gainK);
+  const denPoly = expandRoots(poles);
+
+  return { numCoeffs: numPoly, denCoeffs: denPoly };
 }
 
 /**
@@ -175,25 +213,23 @@ export function analyzeTransferFunction(
   });
 
   // Calculate Bode Canonical form factors
-  // H(s) = K0 * s^N * prod(1 + s/w_z) / prod(1 + s/w_p)
   const zerosAtOrigin = zeros.filter(z => z.isOrigin).length;
   const polesAtOrigin = poles.filter(p => p.isOrigin).length;
   const integratorOrder = polesAtOrigin - zerosAtOrigin;
 
-  // Leading coefficient gain K_raw
   const numLeading = numCoeffs[0] || 1;
   const denLeading = denCoeffs[0] || 1;
   let kRaw = numLeading / denLeading;
 
   // Convert gain K_raw to Bode K0
-  // For each non-origin zero (s - z_i) = -z_i (1 - s/z_i)
-  // For each non-origin pole (s - p_i) = -p_i (1 - s/p_i)
   let k0 = kRaw;
   zeros.filter(z => !z.isOrigin).forEach(z => {
-    k0 *= Math.sqrt(z.re * z.re + z.im * z.im);
+    const dist = Math.sqrt(z.re * z.re + z.im * z.im);
+    k0 *= -z.re !== 0 ? dist : 1;
   });
   poles.filter(p => !p.isOrigin).forEach(p => {
-    k0 /= Math.sqrt(p.re * p.re + p.im * p.im);
+    const dist = Math.sqrt(p.re * p.re + p.im * p.im);
+    k0 /= dist !== 0 ? dist : 1;
   });
 
   // Factors identification
@@ -203,12 +239,12 @@ export function analyzeTransferFunction(
   factors.push({
     id: 'gain',
     name: 'Constant Gain K₀',
-    latex: `K_0 = ${k0.toFixed(3)}`,
+    latex: `K_0 = ${fmtNum(k0, 3)}`,
     type: 'gain',
     omega_c: 0,
     slopeDbDec: 0,
-    phaseLow: 0,
-    phaseHigh: 0
+    phaseLow: k0 < 0 ? -180 : 0,
+    phaseHigh: k0 < 0 ? -180 : 0
   });
 
   // Origin Factor
@@ -229,44 +265,43 @@ export function analyzeTransferFunction(
   }
 
   // Non-origin Zeros
-  // Process real zeros and complex conjugate pairs
   const processedZeros = new Set<number>();
   zeros.forEach((z, idx) => {
     if (z.isOrigin || processedZeros.has(idx)) return;
 
-    // Check if complex conjugate pair
     if (Math.abs(z.im) > 1e-6) {
-      // Find pair
       const pairIdx = zeros.findIndex((other, oIdx) => oIdx !== idx && !processedZeros.has(oIdx) && Math.abs(other.re - z.re) < 1e-4 && Math.abs(other.im + z.im) < 1e-4);
       if (pairIdx !== -1) {
         processedZeros.add(idx);
         processedZeros.add(pairIdx);
+        const isRhp = z.re > 1e-6;
+        const signStr = isRhp ? '-' : '+';
         factors.push({
           id: `cz_${idx}`,
-          name: `Complex Zero Pair (ωₙ=${z.omega_n.toFixed(2)}, ζ=${z.zeta.toFixed(2)})`,
-          latex: `1 + 2(${z.zeta.toFixed(2)})\\frac{s}{${z.omega_n.toFixed(2)}} + \\left(\\frac{s}{${z.omega_n.toFixed(2)}}\\right)^2`,
+          name: `${isRhp ? 'RHP ' : ''}Complex Zero Pair (ωₙ=${fmtNum(z.omega_n, 2)}, ζ=${fmtNum(z.zeta, 2)})`,
+          latex: `1 ${signStr} 2(${fmtNum(Math.abs(z.zeta), 2)})\\cdot\\frac{s}{${fmtNum(z.omega_n, 2)}} + \\left(\\frac{s}{${fmtNum(z.omega_n, 2)}}\\right)^2`,
           type: 'complex_zero',
           omega_c: z.omega_n,
           slopeDbDec: +40,
           phaseLow: 0,
-          phaseHigh: +180
+          phaseHigh: isRhp ? -180 : +180
         });
         return;
       }
     }
 
-    // Real zero
     processedZeros.add(idx);
-    const wc = Math.abs(z.re);
+    const wc = z.omega_n;
+    const isRhp = z.re > 1e-6;
     factors.push({
       id: `rz_${idx}`,
-      name: `Real Zero (ω_c=${wc.toFixed(2)})`,
-      latex: `1 + \\frac{s}{${wc.toFixed(2)}}`,
+      name: `${isRhp ? 'RHP (Non-Min Phase) ' : ''}Real Zero (ω_c=${fmtNum(wc, 2)})`,
+      latex: isRhp ? `1 - \\frac{s}{${fmtNum(wc, 2)}}` : `1 + \\frac{s}{${fmtNum(wc, 2)}}`,
       type: 'real_zero',
       omega_c: wc,
       slopeDbDec: +20,
       phaseLow: 0,
-      phaseHigh: +90
+      phaseHigh: isRhp ? -90 : +90
     });
   });
 
@@ -280,31 +315,34 @@ export function analyzeTransferFunction(
       if (pairIdx !== -1) {
         processedPoles.add(idx);
         processedPoles.add(pairIdx);
+        const isRhp = p.re > 1e-6;
+        const signStr = isRhp ? '-' : '+';
         factors.push({
           id: `cp_${idx}`,
-          name: `Complex Pole Pair (ωₙ=${p.omega_n.toFixed(2)}, ζ=${p.zeta.toFixed(2)})`,
-          latex: `\\frac{1}{1 + 2(${p.zeta.toFixed(2)})\\frac{s}{${p.omega_n.toFixed(2)}} + \\left(\\frac{s}{${p.omega_n.toFixed(2)}}\\right)^2}`,
+          name: `${isRhp ? 'RHP ' : ''}Complex Pole Pair (ωₙ=${fmtNum(p.omega_n, 2)}, ζ=${fmtNum(p.zeta, 2)})`,
+          latex: `\\frac{1}{1 ${signStr} 2(${fmtNum(Math.abs(p.zeta), 2)})\\cdot\\frac{s}{${fmtNum(p.omega_n, 2)}} + \\left(\\frac{s}{${fmtNum(p.omega_n, 2)}}\\right)^2}`,
           type: 'complex_pole',
           omega_c: p.omega_n,
           slopeDbDec: -40,
           phaseLow: 0,
-          phaseHigh: -180
+          phaseHigh: isRhp ? +180 : -180
         });
         return;
       }
     }
 
     processedPoles.add(idx);
-    const wc = Math.abs(p.re);
+    const wc = p.omega_n;
+    const isRhp = p.re > 1e-6;
     factors.push({
       id: `rp_${idx}`,
-      name: `Real Pole (ω_c=${wc.toFixed(2)})`,
-      latex: `\\frac{1}{1 + \\frac{s}{${wc.toFixed(2)}}}`,
+      name: `${isRhp ? 'Unstable ' : ''}Real Pole (ω_c=${fmtNum(wc, 2)})`,
+      latex: isRhp ? `\\frac{1}{1 - \\frac{s}{${fmtNum(wc, 2)}}}` : `\\frac{1}{1 + \\frac{s}{${fmtNum(wc, 2)}}}`,
       type: 'real_pole',
       omega_c: wc,
       slopeDbDec: -20,
       phaseLow: 0,
-      phaseHigh: -90
+      phaseHigh: isRhp ? +90 : -90
     });
   });
 
@@ -314,31 +352,27 @@ export function analyzeTransferFunction(
   const logMax = omegaMaxPower;
   const step = (logMax - logMin) / (pointsCount - 1);
 
-  // Exact & Asymptotic Evaluation
   for (let i = 0; i < pointsCount; i++) {
     const logOmega = logMin + i * step;
     const omega = Math.pow(10, logOmega);
 
-    // Exact evaluation H(j*omega)
     let numVal = evalPolyComplex(numCoeffs, omega);
     let denVal = evalPolyComplex(denCoeffs, omega);
     let hVal = math.divide(numVal, denVal) as math.Complex;
 
-    const magLinear = math.abs(hVal);
+    const magLinear = math.abs(hVal) as unknown as number;
     const magDb = 20 * Math.log10(Math.max(magLinear, 1e-12));
-    let phaseDeg = (math.arg(hVal) * 180) / Math.PI;
+    const argVal = math.arg(hVal) as unknown as number;
+    let phaseDeg = (argVal * 180) / Math.PI;
 
-    // Asymptotic evaluation
-    // Mag asymptotic = 20*log10|K0| - 20*integratorOrder*log10(omega) + sum(slope * log10(omega/omega_c) for omega > omega_c)
     let magAsympDb = 20 * Math.log10(Math.max(Math.abs(k0), 1e-12)) - 20 * integratorOrder * Math.log10(omega);
-    let phaseAsympDeg = -90 * integratorOrder;
+    let phaseAsympDeg = -90 * integratorOrder + (k0 < 0 ? -180 : 0);
 
     factors.forEach(f => {
       if (f.omega_c > 0) {
         if (omega >= f.omega_c) {
           magAsympDb += f.slopeDbDec * Math.log10(omega / f.omega_c);
         }
-        // Phase asymptotic straight line from 0.1*wc to 10*wc
         const wLow = f.omega_c / 10;
         const wHigh = f.omega_c * 10;
         if (omega <= wLow) {
@@ -346,8 +380,7 @@ export function analyzeTransferFunction(
         } else if (omega >= wHigh) {
           phaseAsympDeg += f.phaseHigh;
         } else {
-          // linear interpolation in log space
-          const frac = Math.log10(omega / wLow) / 2; // log10(100) = 2
+          const frac = Math.log10(omega / wLow) / 2;
           phaseAsympDeg += f.phaseLow + frac * (f.phaseHigh - f.phaseLow);
         }
       }
@@ -363,7 +396,7 @@ export function analyzeTransferFunction(
     });
   }
 
-  // Phase Unwrap to ensure smooth phase without jumps
+  // Phase Unwrap
   for (let i = 1; i < points.length; i++) {
     let diff = points[i].phaseDeg - points[i - 1].phaseDeg;
     while (diff > 180) {
@@ -504,7 +537,8 @@ export function formatPolyLatex(coeffs: number[]): string {
 
     let termStr = '';
     const absCoeff = Math.abs(coeff);
-    const coeffStr = absCoeff === 1 && power > 0 ? '' : absCoeff.toString();
+    const rawCoeffStr = (Math.round(absCoeff * 1e4) / 1e4).toString().replace('.', ',');
+    const coeffStr = absCoeff === 1 && power > 0 ? '' : rawCoeffStr;
 
     if (power === 0) {
       termStr = `${coeffStr || '1'}`;

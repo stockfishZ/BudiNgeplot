@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { PoleZero } from '../utils/bodeEngine';
+import { exportSvg, exportPng } from '../utils/exportChart';
+import { fmtNum } from '../utils/formatUtils';
+import { Download, Image as ImageIcon } from 'lucide-react';
 
 interface PoleZeroMapProps {
   poles: PoleZero[];
@@ -7,6 +10,7 @@ interface PoleZeroMapProps {
 }
 
 export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
+  const svgRef = useRef<SVGSVGElement>(null);
   const width = 400;
   const height = 300;
   const padding = 40;
@@ -14,7 +18,6 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
   const plotW = width - 2 * padding;
   const plotH = height - 2 * padding;
 
-  // Determine max bound across poles and zeros
   const allPoints = [...poles, ...zeros];
   let maxVal = 5;
   allPoints.forEach(pt => {
@@ -22,19 +25,36 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
   });
   const limit = Math.ceil(maxVal * 1.3);
 
-  // Coordinate mapping (Origin 0,0 at center of plot)
   const getX = (re: number) => padding + plotW / 2 + (re / limit) * (plotW / 2);
   const getY = (im: number) => padding + plotH / 2 - (im / limit) * (plotH / 2);
 
+  const handleExportPng = () => {
+    if (svgRef.current) exportPng(svgRef.current, 'pole_zero_map_budingeplot.png');
+  };
+
+  const handleExportSvg = () => {
+    if (svgRef.current) exportSvg(svgRef.current, 'pole_zero_map_budingeplot.svg');
+  };
+
   return (
     <div className="card" style={{ padding: '1rem' }}>
-      <h3 style={{ fontSize: '1rem', color: 'var(--color-primary-dark)', marginBottom: '0.75rem' }}>
-        S-Plane Pole-Zero Map
-      </h3>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h3 style={{ fontSize: '1rem', color: 'var(--color-primary-dark)', margin: 0 }}>
+          S-Plane Pole-Zero Map
+        </h3>
 
-      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <button className="btn btn-secondary btn-sm no-print" onClick={handleExportPng} title="Export PNG">
+            <ImageIcon size={12} /> PNG
+          </button>
+          <button className="btn btn-secondary btn-sm no-print" onClick={handleExportSvg} title="Export SVG">
+            <Download size={12} /> SVG
+          </button>
+        </div>
+      </div>
+
+      <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
         {/* Background Regions */}
-        {/* LHP Stable Region (Left of imaginary axis) */}
         <rect
           x={padding}
           y={padding}
@@ -43,7 +63,6 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
           fill="rgba(46, 204, 64, 0.05)"
           stroke="none"
         />
-        {/* RHP Unstable Region */}
         <rect
           x={padding + plotW / 2}
           y={padding}
@@ -54,14 +73,12 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
         />
 
         {/* AXIS LINES */}
-        {/* Real Axis */}
         <line x1={padding} y1={getY(0)} x2={width - padding} y2={getY(0)} stroke="#9CA3AF" strokeWidth="1.5" />
-        {/* Imaginary Axis */}
         <line x1={getX(0)} y1={padding} x2={getX(0)} y2={height - padding} stroke="#9CA3AF" strokeWidth="1.5" />
 
         {/* Damping Ratio ζ = 0.707 diagonal lines */}
         {(() => {
-          const angle707 = Math.PI / 4; // 45 deg
+          const angle707 = Math.PI / 4;
           const xLine = limit * Math.cos(angle707);
           const yLine = limit * Math.sin(angle707);
           return (
@@ -100,7 +117,7 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
           return (
             <g key={`zero_${idx}`}>
               <circle cx={cx} cy={cy} r="6" fill="none" stroke="#D4AF37" strokeWidth="2.5" />
-              <title>{`Zero: ${z.re.toFixed(2)} + j(${z.im.toFixed(2)}), ωn=${z.omega_n.toFixed(2)}, ζ=${z.zeta.toFixed(2)}`}</title>
+              <title>{`Zero: ${fmtNum(z.re, 2)} + j(${fmtNum(z.im, 2)}), ωn=${fmtNum(z.omega_n, 2)}, ζ=${fmtNum(z.zeta, 2)}`}</title>
             </g>
           );
         })}
@@ -116,7 +133,7 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
             <g key={`pole_${idx}`}>
               <line x1={cx - size} y1={cy - size} x2={cx + size} y2={cy + size} stroke={strokeColor} strokeWidth="2.5" />
               <line x1={cx - size} y1={cy + size} x2={cx + size} y2={cy - size} stroke={strokeColor} strokeWidth="2.5" />
-              <title>{`Pole: ${p.re.toFixed(2)} + j(${p.im.toFixed(2)}), ωn=${p.omega_n.toFixed(2)}, ζ=${p.zeta.toFixed(2)}`}</title>
+              <title>{`Pole: ${fmtNum(p.re, 2)} + j(${fmtNum(p.im, 2)}), ωn=${fmtNum(p.omega_n, 2)}, ζ=${fmtNum(p.zeta, 2)}`}</title>
             </g>
           );
         })}

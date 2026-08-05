@@ -35,7 +35,8 @@
 - [x] **Input & Controls Panel**:
   - [x] Polynomial Coefficient Inputs ($N(s)$ and $D(s)$).
   - [x] Expression String Input with real-time preview of $H(s)$.
-  - [x] Homework Presets Dropdown (2nd order underdamped, lag-lead, integrator system, non-minimum phase).
+  - [x] **Zero-Pole-Gain (ZPK) Input Form**: Direct input for Gain $K$, Zeros list, and Poles list.
+  - [x] Homework Presets Dropdown (2nd order underdamped, lag-lead, integrator system, non-minimum phase, ZPK).
   - [x] Frequency Range Slider ($\omega_{\min}$ to $\omega_{\max}$).
   - [x] Curve Toggles: Exact Curve, Asymptotic Lines, GM/PM Margin Annotations, Grid Lines.
 - [x] **Interactive Plot Canvas (Bode & S-Plane)**:

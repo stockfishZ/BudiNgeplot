@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BodeAnalysisResult } from '../utils/bodeEngine';
 import { MathView } from './MathView';
 import { fmtNum } from '../utils/formatUtils';
-import { Copy, Check, FileText, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { Copy, Check, FileText, AlertTriangle } from 'lucide-react';
 
 interface HomeworkBreakdownProps {
   analysis: BodeAnalysisResult;
@@ -70,10 +70,9 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? fmtNum(f.
             fontSize: '0.85rem',
             fontWeight: '700',
             display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem'
+            alignItems: 'center'
           }}>
-            <ShieldCheck size={16} /> System is Stable (GM & PM &gt; 0)
+            System is Stable (GM & PM &gt; 0)
           </span>
         );
       case 'Unstable':
@@ -87,10 +86,9 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? fmtNum(f.
             fontSize: '0.85rem',
             fontWeight: '700',
             display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem'
+            alignItems: 'center'
           }}>
-            <ShieldAlert size={16} /> System is Unstable
+            System is Unstable
           </span>
         );
       default:
@@ -104,10 +102,9 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? fmtNum(f.
             fontSize: '0.85rem',
             fontWeight: '700',
             display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem'
+            alignItems: 'center'
           }}>
-            <AlertTriangle size={16} /> Marginally Stable / Special Case
+            Marginally Stable / Special Case
           </span>
         );
     }

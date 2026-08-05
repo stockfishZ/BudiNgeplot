@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Header } from './components/Header';
-import { ControlPanel, Presets, HOMEWORK_PRESETS } from './components/ControlPanel';
+import { ControlPanel } from './components/ControlPanel';
 import { BodeChart } from './components/BodeChart';
 import { PoleZeroMap } from './components/PoleZeroMap';
 import { HomeworkBreakdown } from './components/HomeworkBreakdown';
@@ -79,17 +79,6 @@ export const App: React.FC = () => {
     return analyzeTransferFunction(numCoeffs, denCoeffs, omegaMinPower, omegaMaxPower, 400);
   }, [inputMode, numStr, denStr, exprStr, zpkGainStr, zpkZerosStr, zpkPolesStr, omegaMinPower, omegaMaxPower]);
 
-  const handleSelectPreset = (preset: Presets) => {
-    setNumStr(preset.num.join(' '));
-    setDenStr(preset.den.join(' '));
-    setExprStr(preset.expr);
-    if (preset.zpk) {
-      setZpkGainStr(preset.zpk.gain);
-      setZpkZerosStr(preset.zpk.zeros);
-      setZpkPolesStr(preset.zpk.poles);
-    }
-  };
-
   const handlePrint = () => {
     window.print();
   };
@@ -129,7 +118,6 @@ export const App: React.FC = () => {
             onZpkZerosChange={setZpkZerosStr}
             onZpkPolesChange={setZpkPolesStr}
             onInputModeChange={setInputMode}
-            onSelectPreset={handleSelectPreset}
             omegaMinPower={omegaMinPower}
             omegaMaxPower={omegaMaxPower}
             onOmegaMinChange={setOmegaMinPower}

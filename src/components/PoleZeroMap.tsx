@@ -1,8 +1,6 @@
 import React, { useRef } from 'react';
 import { PoleZero } from '../utils/bodeEngine';
-import { exportSvg, exportPng } from '../utils/exportChart';
 import { fmtNum } from '../utils/formatUtils';
-import { Download, Image as ImageIcon } from 'lucide-react';
 
 interface PoleZeroMapProps {
   poles: PoleZero[];
@@ -28,29 +26,12 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
   const getX = (re: number) => padding + plotW / 2 + (re / limit) * (plotW / 2);
   const getY = (im: number) => padding + plotH / 2 - (im / limit) * (plotH / 2);
 
-  const handleExportPng = () => {
-    if (svgRef.current) exportPng(svgRef.current, 'pole_zero_map_budingeplot.png');
-  };
-
-  const handleExportSvg = () => {
-    if (svgRef.current) exportSvg(svgRef.current, 'pole_zero_map_budingeplot.svg');
-  };
-
   return (
     <div className="card" style={{ padding: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div style={{ marginBottom: '0.75rem' }}>
         <h3 style={{ fontSize: '1rem', color: 'var(--color-primary-dark)', margin: 0 }}>
           S-Plane Pole-Zero Map
         </h3>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <button className="btn btn-secondary btn-sm no-print" onClick={handleExportPng} title="Export PNG">
-            <ImageIcon size={12} /> PNG
-          </button>
-          <button className="btn btn-secondary btn-sm no-print" onClick={handleExportSvg} title="Export SVG">
-            <Download size={12} /> SVG
-          </button>
-        </div>
       </div>
 
       <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', display: 'block' }}>

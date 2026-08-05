@@ -1,52 +1,6 @@
 import React from 'react';
 import { Sliders, Code, List, Eye, CheckSquare, AlertTriangle } from 'lucide-react';
 
-export interface Presets {
-  name: string;
-  num: number[];
-  den: number[];
-  expr: string;
-  zpk?: { gain: string; zeros: string; poles: string };
-}
-
-export const HOMEWORK_PRESETS: Presets[] = [
-  {
-    name: '2nd-Order Underdamped (ζ = 0.4, ωₙ = 5)',
-    num: [25],
-    den: [1, 4, 25],
-    expr: '25 / (s^2 + 4*s + 25)',
-    zpk: { gain: '25', zeros: '', poles: '-2+4.58j, -2-4.58j' }
-  },
-  {
-    name: 'Integrator + Lag-Lead Network',
-    num: [10, 20],
-    den: [1, 10, 0],
-    expr: '10*(s + 2) / (s*(s + 10))',
-    zpk: { gain: '10', zeros: '-2', poles: '0, -10' }
-  },
-  {
-    name: 'Non-Minimum Phase Zero (Right Half Plane Zero)',
-    num: [-2, 2],
-    den: [0.1, 1.1, 1],
-    expr: '2*(1 - s) / ((s + 1)*(0.1*s + 1))',
-    zpk: { gain: '20', zeros: '1', poles: '-1, -10' }
-  },
-  {
-    name: '3rd-Order System with Resonant Peak',
-    num: [100],
-    den: [1, 2, 50, 0],
-    expr: '100 / (s*(s^2 + 2*s + 50))',
-    zpk: { gain: '100', zeros: '', poles: '0, -1+7j, -1-7j' }
-  },
-  {
-    name: 'High Gain Unstable Control System',
-    num: [50],
-    den: [1, 6, 11, 6],
-    expr: '50 / (s^3 + 6*s^2 + 11*s + 6)',
-    zpk: { gain: '50', zeros: '', poles: '-1, -2, -3' }
-  }
-];
-
 interface ControlPanelProps {
   numStr: string;
   denStr: string;
@@ -63,7 +17,6 @@ interface ControlPanelProps {
   onZpkZerosChange: (val: string) => void;
   onZpkPolesChange: (val: string) => void;
   onInputModeChange: (mode: 'poly' | 'expr' | 'zpk') => void;
-  onSelectPreset: (preset: Presets) => void;
   omegaMinPower: number;
   omegaMaxPower: number;
   onOmegaMinChange: (val: number) => void;
@@ -94,7 +47,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onZpkZerosChange,
   onZpkPolesChange,
   onInputModeChange,
-  onSelectPreset,
   omegaMinPower,
   omegaMaxPower,
   onOmegaMinChange,
@@ -135,31 +87,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             ZPK Form [Zeros/Poles/K]
           </button>
         </div>
-      </div>
-
-      {/* Preset Homework Dropdown */}
-      <div className="form-group">
-        <label className="form-label">
-          <List size={14} />
-          Homework Presets
-        </label>
-        <select
-          className="select-input"
-          onChange={(e) => {
-            const idx = parseInt(e.target.value, 10);
-            if (!isNaN(idx) && HOMEWORK_PRESETS[idx]) {
-              onSelectPreset(HOMEWORK_PRESETS[idx]);
-            }
-          }}
-          defaultValue=""
-        >
-          <option value="" disabled>-- Choose Homework Example --</option>
-          {HOMEWORK_PRESETS.map((p, i) => (
-            <option key={i} value={i}>
-              {p.name}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Inputs */}

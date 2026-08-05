@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({ reportMode, onToggleReportMode, 
               fontWeight: 500,
               margin: 0
             }}>
-              "Budi males bikin BodePlot sendiri"
+              Budi males bikin BodePlot sendiri
             </p>
           </div>
         </div>

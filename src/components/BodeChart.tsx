@@ -42,24 +42,24 @@ export const BodeChart: React.FC<BodeChartProps> = ({
   const logMin = zoomRange ? zoomRange.minLog : omegaMinPower;
   const logMax = zoomRange ? zoomRange.maxLog : omegaMaxPower;
 
-  // Chart dimensions & padding (Increased left padding from 65 to 85 to prevent Y-axis text overlap)
+  // Chart dimensions & padding
   const width = 800;
-  const magHeight = 260;
+  const magHeight = 245;
   const phaseHeight = 220;
-  const gap = 45; // Increased gap between charts for top/bottom metric clarity
-  const totalHeight = magHeight + gap + phaseHeight;
+  const gap = 40;
+  const totalHeight = 520; // 520px height encloses all elements cleanly without clipping bottom labels
 
-  const paddingLeft = 85; // Clean 85px padding prevents any overlap between dB labels and rotated Y-axis title
+  const paddingLeft = 85;
   const paddingRight = 35;
-  const paddingTop = 35; // Generous top padding for top X-axis frequency metrics
+  const paddingTop = 35;
   const paddingBottom = 40;
 
   const plotWidth = width - paddingLeft - paddingRight;
-  const magPlotHeight = magHeight - paddingTop;
-  const phasePlotHeight = phaseHeight - paddingBottom;
+  const magPlotHeight = magHeight - paddingTop; // 210px
+  const phasePlotHeight = phaseHeight - paddingBottom; // 180px
 
-  const magY0 = paddingTop;
-  const phaseY0 = paddingTop + magHeight + gap;
+  const magY0 = paddingTop; // y = 35
+  const phaseY0 = magY0 + magPlotHeight + gap; // y = 35 + 210 + 40 = 285
 
   // Frequency X mapping: log10(omega) to [0, plotWidth]
   const getX = (omega: number) => {
@@ -315,6 +315,15 @@ export const BodeChart: React.FC<BodeChartProps> = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
       >
+        <defs>
+          <clipPath id="magClip">
+            <rect x={paddingLeft} y={magY0} width={plotWidth} height={magPlotHeight} />
+          </clipPath>
+          <clipPath id="phaseClip">
+            <rect x={paddingLeft} y={phaseY0} width={plotWidth} height={phasePlotHeight} />
+          </clipPath>
+        </defs>
+
         {/* Background Plot Surfaces */}
         <rect x={paddingLeft} y={magY0} width={plotWidth} height={magPlotHeight} fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="1" />
         <rect x={paddingLeft} y={phaseY0} width={plotWidth} height={phasePlotHeight} fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="1" />
@@ -460,8 +469,8 @@ export const BodeChart: React.FC<BodeChartProps> = ({
         {/* ASYMPTOTIC CURVES */}
         {showAsymptotic && (
           <>
-            <path d={magAsympPath} fill="none" stroke="#B45309" strokeWidth="1.8" strokeDasharray="6 4" opacity="0.85" />
-            <path d={phaseAsympPath} fill="none" stroke="#B45309" strokeWidth="1.8" strokeDasharray="6 4" opacity="0.85" />
+            <path d={magAsympPath} fill="none" stroke="#B45309" strokeWidth="1.8" strokeDasharray="6 4" opacity="0.85" clipPath="url(#magClip)" />
+            <path d={phaseAsympPath} fill="none" stroke="#B45309" strokeWidth="1.8" strokeDasharray="6 4" opacity="0.85" clipPath="url(#phaseClip)" />
 
             {/* Subtle Corner Frequency Dots */}
             {analysis.factors.filter(f => f.omega_c > 0).map((f, idx) => {
@@ -469,7 +478,7 @@ export const BodeChart: React.FC<BodeChartProps> = ({
               const inView = Math.log10(f.omega_c) >= logMin && Math.log10(f.omega_c) <= logMax;
               if (!inView) return null;
               return (
-                <g key={`corner_${idx}`}>
+                <g key={`corner_${idx}`} clipPath="url(#magClip)">
                   <line x1={x} y1={magY0} x2={x} y2={magY0 + magPlotHeight} stroke="#D97706" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
                   <circle cx={x} cy={getMagY(f.slopeDbDec)} r="3" fill="#D97706" />
                 </g>
@@ -479,8 +488,8 @@ export const BodeChart: React.FC<BodeChartProps> = ({
         )}
 
         {/* EXACT RESPONSE CURVES */}
-        <path d={magExactPath} fill="none" stroke="#001F3F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <path d={phaseExactPath} fill="none" stroke="#001F3F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={magExactPath} fill="none" stroke="#001F3F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" clipPath="url(#magClip)" />
+        <path d={phaseExactPath} fill="none" stroke="#001F3F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" clipPath="url(#phaseClip)" />
 
         {/* GAIN & PHASE MARGIN ANNOTATIONS (Clean drop lines & margin spans without duplicate badges) */}
         {showMargins && (

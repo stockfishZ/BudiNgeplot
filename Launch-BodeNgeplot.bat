@@ -1,0 +1,3 @@
+@echo off
+title Launching BodeNgeplot...
+start "" "%~dp0BodeNgeplot.html"

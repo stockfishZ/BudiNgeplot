@@ -624,17 +624,17 @@ export const BodeChart: React.FC<BodeChartProps> = ({
                   {/* Proximity Highlights */}
                   {isNearGc && (
                     <text x="12" y={tooltipHeight - 10} fill="#FFD700" fontFamily="var(--font-mono)" fontSize="10" fontWeight="700">
-                      ⭐ Gain Crossover (ω_gc): {fmtNum(analysis.omega_gc, 2)}
+                      Gain Crossover (ω_gc): {fmtNum(analysis.omega_gc, 2)}
                     </text>
                   )}
                   {!isNearGc && isNearPc && (
                     <text x="12" y={tooltipHeight - 10} fill="#2ECC40" fontFamily="var(--font-mono)" fontSize="10" fontWeight="700">
-                      ⭐ Phase Crossover (ω_pc): {fmtNum(analysis.omega_pc, 2)}
+                      Phase Crossover (ω_pc): {fmtNum(analysis.omega_pc, 2)}
                     </text>
                   )}
                   {!isNearGc && !isNearPc && nearCorner && (
                     <text x="12" y={tooltipHeight - 10} fill="#D97706" fontFamily="var(--font-mono)" fontSize="10" fontWeight="700">
-                      ⭐ Corner Freq (ω_c): {fmtNum(nearCorner.omega_c, 2)}
+                      Corner Freq (ω_c): {fmtNum(nearCorner.omega_c, 2)}
                     </text>
                   )}
                 </g>

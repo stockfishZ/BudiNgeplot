@@ -214,7 +214,7 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
 
         <div style={{ fontSize: '0.875rem', fontFamily: 'var(--font-sans)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <div>
-            <strong>1. Gain Crossover Frequency (ω_gc):</strong> Frequency where $|H(j\omega_{gc})| = 0 \text{ dB} = 1.0$.
+            <strong>1. Gain Crossover Frequency (ω_gc):</strong>{' Frequency where $|H(j\\omega_{gc})| = 0 \\text{ dB} = 1.0$.'}
             {analysis.omega_gc !== null ? (
               <div style={{ margin: '0.25rem 0 0.5rem 1rem' }}>
                 <MathView latex={`\\omega_{gc} = ${analysis.omega_gc.toFixed(3)} \\text{ rad/s}`} />
@@ -227,7 +227,7 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? f.omega_c
           </div>
 
           <div>
-            <strong>2. Phase Crossover Frequency (ω_pc):</strong> Frequency where $\angle H(j\omega_{pc}) = -180^\circ$.
+            <strong>2. Phase Crossover Frequency (ω_pc):</strong>{' Frequency where $\\angle H(j\\omega_{pc}) = -180^\\circ$.'}
             {analysis.omega_pc !== null ? (
               <div style={{ margin: '0.25rem 0 0.5rem 1rem' }}>
                 <MathView latex={`\\omega_{pc} = ${analysis.omega_pc.toFixed(3)} \\text{ rad/s}`} />

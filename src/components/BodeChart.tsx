@@ -326,14 +326,15 @@ export const BodeChart: React.FC<BodeChartProps> = ({
         {showMargins && (
           <>
             {/* Gain Crossover Point (omega_gc) & Phase Margin (PM) */}
-            {analysis.omega_gc !== null && analysis.phaseMargin !== null && (
+            {analysis.omega_gc !== null && analysis.phaseMargin !== null && (() => {
+              const xGc = getX(analysis.omega_gc);
+              const yMagGc = getMagY(0);
+              const yPhaseGc = getPhaseY(-180 + analysis.phaseMargin);
+              const yNeg180 = getPhaseY(-180);
+
+              return (
               <g>
                 {/* Drop line from 0 dB on mag chart to phase chart */}
-                const xGc = getX(analysis.omega_gc);
-                const yMagGc = getMagY(0);
-                const yPhaseGc = getPhaseY(-180 + analysis.phaseMargin);
-                const yNeg180 = getPhaseY(-180);
-
                 <line x1={getX(analysis.omega_gc)} y1={yMagGc} x2={getX(analysis.omega_gc)} y2={yPhaseGc} stroke="#D4AF37" strokeWidth="2" strokeDasharray="3 3" />
                 <circle cx={getX(analysis.omega_gc)} cy={yMagGc} r="5" fill="#D4AF37" stroke="#001F3F" strokeWidth="1.5" />
                 <circle cx={getX(analysis.omega_gc)} cy={yPhaseGc} r="5" fill="#D4AF37" stroke="#001F3F" strokeWidth="1.5" />
@@ -352,16 +353,18 @@ export const BodeChart: React.FC<BodeChartProps> = ({
                   PM = {analysis.phaseMargin.toFixed(1)}°
                 </text>
               </g>
-            )}
+              );
+            })()}
 
             {/* Phase Crossover Point (omega_pc) & Gain Margin (GM) */}
-            {analysis.omega_pc !== null && analysis.gainMarginDb !== null && (
-              <g>
-                const xPc = getX(analysis.omega_pc);
-                const yPhasePc = getPhaseY(-180);
-                const yMagPc = getMagY(-analysis.gainMarginDb);
-                const y0Db = getMagY(0);
+            {analysis.omega_pc !== null && analysis.gainMarginDb !== null && (() => {
+              const xPc = getX(analysis.omega_pc);
+              const yPhasePc = getPhaseY(-180);
+              const yMagPc = getMagY(-analysis.gainMarginDb);
+              const y0Db = getMagY(0);
 
+              return (
+              <g>
                 <line x1={getX(analysis.omega_pc)} y1={yMagPc} x2={getX(analysis.omega_pc)} y2={yPhasePc} stroke="#2ECC40" strokeWidth="2" strokeDasharray="3 3" />
                 <circle cx={getX(analysis.omega_pc)} cy={yPhasePc} r="5" fill="#2ECC40" stroke="#001F3F" strokeWidth="1.5" />
                 <circle cx={getX(analysis.omega_pc)} cy={yMagPc} r="5" fill="#2ECC40" stroke="#001F3F" strokeWidth="1.5" />
@@ -379,7 +382,8 @@ export const BodeChart: React.FC<BodeChartProps> = ({
                   GM = {analysis.gainMarginDb.toFixed(1)} dB
                 </text>
               </g>
-            )}
+              );
+            })()}
           </>
         )}
 

@@ -1,62 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BodeAnalysisResult } from '../utils/bodeEngine';
 import { MathView } from './MathView';
 import { fmtNum } from '../utils/formatUtils';
-import { Copy, Check, FileText, AlertTriangle } from 'lucide-react';
+import { FileText, AlertTriangle } from 'lucide-react';
 
 interface HomeworkBreakdownProps {
   analysis: BodeAnalysisResult;
 }
 
 export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({ analysis }) => {
-  const [copiedType, setCopiedType] = useState<string | null>(null);
-
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedType(label);
-    setTimeout(() => setCopiedType(null), 2000);
-  };
-
-  const handleCopyFullLatex = () => {
-    const fullLatexText = `% --- BudiNgeplot Solution Export ---
-\\documentclass{article}
-\\usepackage{amsmath}
-\\begin{document}
-
-\\section*{Transfer Function Analysis}
-Given the system transfer function:
-\\[ ${analysis.latexTF} \\]
-
-Canonical Bode Factorized Form:
-\\[ ${analysis.latexCanonical} \\]
-
-\\subsection*{Bode Factor Breakdown Table}
-\\begin{tabular}{|l|c|c|r|}
-\\hline
-Factor & Type & Corner Frequency $\\omega_c$ & Magnitude Slope \\\\
-\\hline
-${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? fmtNum(f.omega_c, 2) + ' rad/s' : 'N/A'} & ${f.slopeDbDec > 0 ? '+' + f.slopeDbDec : f.slopeDbDec} dB/dec \\\\`).join('\n')}
-\\hline
-\\end{tabular}
-
-\\subsection*{Stability and Margin Derivations}
-\\begin{itemize}
-  \\item Gain Crossover Frequency: $\\omega_{gc} = ${analysis.omega_gc !== null ? fmtNum(analysis.omega_gc, 3) + ' \\text{ rad/s}' : '\\text{N/A}'}$
-  \\item Phase Margin: $\\text{PM} = ${analysis.phaseMargin !== null ? fmtNum(analysis.phaseMargin, 2) + '^\\circ' : '\\text{N/A}'}$
-  \\item Phase Crossover Frequency: $\\omega_{pc} = ${analysis.omega_pc !== null ? fmtNum(analysis.omega_pc, 3) + ' \\text{ rad/s}' : '\\text{N/A}'}$
-  \\item Gain Margin: $\\text{GM} = ${analysis.gainMarginDb !== null ? fmtNum(analysis.gainMarginDb, 2) + ' \\text{ dB}' : '\\text{N/A}'}$
-  \\item Stability Status: \\textbf{${analysis.stabilityStatus}}
-\\end{itemize}
-
-\\end{document}`;
-    copyToClipboard(fullLatexText, 'Full LaTeX');
-  };
-
-  const handleCopyEqLatex = () => {
-    const text = `${analysis.latexTF}\n\n${analysis.latexCanonical}`;
-    copyToClipboard(text, 'Equations');
-  };
-
   const getStatusBadge = () => {
     switch (analysis.stabilityStatus) {
       case 'Stable':
@@ -117,16 +69,6 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? fmtNum(f.
           <FileText size={18} />
           Step-by-Step Solution Breakdown
         </h2>
-        <div style={{ display: 'flex', gap: '0.35rem' }}>
-          <button className="btn btn-secondary btn-sm no-print" onClick={handleCopyEqLatex}>
-            {copiedType === 'Equations' ? <Check size={14} color="green" /> : <Copy size={14} />}
-            {copiedType === 'Equations' ? 'Copied Equations!' : 'Copy Equations'}
-          </button>
-          <button className="btn btn-secondary btn-sm no-print" onClick={handleCopyFullLatex}>
-            {copiedType === 'Full LaTeX' ? <Check size={14} color="green" /> : <Copy size={14} />}
-            {copiedType === 'Full LaTeX' ? 'Copied Full LaTeX!' : 'Copy Full Document'}
-          </button>
-        </div>
       </div>
 
       {/* Stability Banner */}

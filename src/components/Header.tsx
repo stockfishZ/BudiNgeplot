@@ -63,14 +63,14 @@ export const Header: React.FC<HeaderProps> = ({ reportMode, onToggleReportMode, 
             style={{ fontSize: '0.825rem' }}
           >
             <BookOpen size={16} />
-            {reportMode ? 'Interactive View' : 'Homework Report View'}
+            {reportMode ? 'Interactive View' : 'Report View'}
           </button>
           
           <button
             onClick={onPrint}
             className="btn btn-secondary"
             style={{ fontSize: '0.825rem' }}
-            title="Print / Save Homework PDF"
+            title="Print / Save PDF"
           >
             <Printer size={16} />
             Print / PDF

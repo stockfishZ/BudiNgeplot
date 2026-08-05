@@ -18,7 +18,7 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({ analysis }
   };
 
   const handleCopyFullLatex = () => {
-    const fullLatexText = `% --- BudiNgeplot Homework Solution Export ---
+    const fullLatexText = `% --- BudiNgeplot Solution Export ---
 \\documentclass{article}
 \\usepackage{amsmath}
 \\begin{document}
@@ -115,7 +115,7 @@ ${analysis.factors.map(f => `${f.name} & ${f.type} & ${f.omega_c > 0 ? fmtNum(f.
       <div className="card-header">
         <h2 className="card-title">
           <FileText size={18} />
-          Homework Step-by-Step Solution Breakdown
+          Step-by-Step Solution Breakdown
         </h2>
         <div style={{ display: 'flex', gap: '0.35rem' }}>
           <button className="btn btn-secondary btn-sm no-print" onClick={handleCopyEqLatex}>

@@ -295,7 +295,7 @@ export function analyzeTransferFunction(
     const isRhp = z.re > 1e-6;
     factors.push({
       id: `rz_${idx}`,
-      name: `${isRhp ? 'RHP (Non-Min Phase) ' : ''}Real Zero (ω_c=${fmtNum(wc, 2)})`,
+      name: `${isRhp ? 'RHP (Non-Min Phase) ' : ''}Real Zero (wc=${fmtNum(wc, 2)})`,
       latex: isRhp ? `1 - \\frac{s}{${fmtNum(wc, 2)}}` : `1 + \\frac{s}{${fmtNum(wc, 2)}}`,
       type: 'real_zero',
       omega_c: wc,
@@ -336,7 +336,7 @@ export function analyzeTransferFunction(
     const isRhp = p.re > 1e-6;
     factors.push({
       id: `rp_${idx}`,
-      name: `${isRhp ? 'Unstable ' : ''}Real Pole (ω_c=${fmtNum(wc, 2)})`,
+      name: `${isRhp ? 'Unstable ' : ''}Real Pole (wc=${fmtNum(wc, 2)})`,
       latex: isRhp ? `\\frac{1}{1 - \\frac{s}{${fmtNum(wc, 2)}}}` : `\\frac{1}{1 + \\frac{s}{${fmtNum(wc, 2)}}}`,
       type: 'real_pole',
       omega_c: wc,

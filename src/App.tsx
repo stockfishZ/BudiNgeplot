@@ -135,14 +135,7 @@ export const App: React.FC = () => {
         />
 
         {/* Main Grid: Bode Chart & S-Plane Map */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: showPoleZeroMap ? '1fr 340px' : '1fr',
-            gap: '1.25rem',
-            alignItems: 'start'
-          }}
-        >
+        <div className={`main-chart-grid ${showPoleZeroMap ? 'with-map' : 'no-map'}`}>
           <BodeChart
             analysis={analysisResult}
             omegaMinPower={omegaMinPower}

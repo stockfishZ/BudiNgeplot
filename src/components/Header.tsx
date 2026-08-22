@@ -7,12 +7,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenTutorial }) => {
   return (
-    <header style={{
-      backgroundColor: 'var(--color-primary-dark)',
-      color: 'var(--color-surface-white)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-      padding: '1rem 1.5rem',
-    }} className="no-print">
+    <header className="app-header no-print">
       <div style={{
         maxWidth: '1280px',
         margin: '0 auto',

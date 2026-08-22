@@ -54,33 +54,11 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 31, 63, 0.75)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.25rem',
-      }}
+      className="modal-backdrop"
       onClick={onClose}
     >
       <div
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderRadius: '8px',
-          width: '100%',
-          maxWidth: '1080px',
-          height: '92vh',
-          maxHeight: '92vh',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-          overflow: 'hidden',
-          border: '1px solid #CBD5E1',
-        }}
+        className="modal-container"
         onClick={(e) => e.stopPropagation()}
       >
         {/* HEADER */}
@@ -204,16 +182,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* CONTENT BODY */}
-        <div
-          style={{
-            padding: '1.75rem 2rem',
-            overflowY: 'auto',
-            flex: 1,
-            fontSize: '0.92rem',
-            color: 'var(--color-text-dark)',
-            lineHeight: 1.75,
-          }}
-        >
+        <div className="modal-content-body">
           {/* ========================================================================= */}
           {/* TAB 1: HOW TO DRAW */}
           {/* ========================================================================= */}
@@ -242,7 +211,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
               </div>
 
               {/* 4 Steps in 2-column grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.25rem' }}>
+              <div className="tutorial-step-grid">
                 {/* Step 1 */}
                 <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '1.25rem' }}>
                   <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: 'var(--color-primary-dark)' }}>
@@ -325,7 +294,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
               </p>
 
               {/* 6 Visual Factor Cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '1.25rem' }}>
+              <div className="tutorial-factor-grid">
                 {/* 1. Constant Gain K */}
                 <div style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '1rem', backgroundColor: '#FFFFFF' }}>
                   <div style={{ marginBottom: '0.4rem' }}>

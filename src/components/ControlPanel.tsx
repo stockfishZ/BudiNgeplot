@@ -173,7 +173,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       )}
 
       {inputMode === 'zpk' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+        <div className="zpk-grid">
           <div className="form-group">
             <label className="form-label">Gain (K)</label>
             <input
@@ -210,7 +210,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       )}
 
       {/* Frequency Range Sliders */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+      <div className="sliders-grid">
         <div className="form-group">
           <label className="form-label">
             Frequency Range Min: <span className="mono-val">10^{omegaMinPower} rad/s</span>
@@ -243,14 +243,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
 
       {/* Toggles */}
-      <div style={{
-        marginTop: '0.75rem',
-        paddingTop: '0.75rem',
-        borderTop: '1px solid var(--color-border-subtle)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: '0.5rem'
-      }}>
+      <div className="toggles-grid">
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
           <input
             type="checkbox"

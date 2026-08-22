@@ -86,13 +86,15 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '0.75rem',
         padding: '0.75rem 1rem',
         backgroundColor: 'var(--color-surface-muted)',
         borderRadius: 'var(--radius-sm)',
         border: '1px solid var(--color-border-subtle)',
         marginBottom: '1.25rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.875rem', fontWeight: '600', fontFamily: 'var(--font-heading)' }}>
             Stability Assessment:
           </span>
@@ -112,7 +114,7 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({
       </div>
 
       {/* Equations Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.25rem' }}>
+      <div className="equations-grid">
         <div style={{ padding: '0.85rem', backgroundColor: '#FAFAFA', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border-subtle)' }}>
           <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--color-primary-dark)' }}>
             Given Transfer Function H(s)
@@ -137,7 +139,8 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({
         Individual Factor Contributions & Corner Frequencies
       </h4>
 
-      <table className="hw-table">
+      <div className="table-responsive">
+        <table className="hw-table" style={{ marginTop: 0 }}>
         <thead>
           <tr>
             <th>Factor Component</th>
@@ -199,6 +202,7 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({
           })}
         </tbody>
       </table>
+    </div>
 
       {/* Stability Step-by-Step Equations */}
       <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border-subtle)' }}>

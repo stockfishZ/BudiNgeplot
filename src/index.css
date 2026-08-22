@@ -55,14 +55,19 @@ body {
   min-height: 100dvh;
 }
 
-/* KaTeX Overflow & Responsive Styling */
+/* KaTeX Overflow & Responsive Styling (with invisible scrollbars) */
 .katex-display {
   overflow-x: auto !important;
   overflow-y: hidden !important;
   max-width: 100% !important;
   -webkit-overflow-scrolling: touch !important;
   margin: 0.35rem 0 !important;
-  padding-bottom: 2px !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.katex-display::-webkit-scrollbar {
+  display: none;
 }
 
 .katex {
@@ -77,6 +82,12 @@ body {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   vertical-align: middle;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.math-view::-webkit-scrollbar {
+  display: none;
 }
 
 /* Prevent text selection highlight during interactive chart drag-zoom */

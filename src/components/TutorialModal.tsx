@@ -590,12 +590,12 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
               </div>
 
               {/* Graphic */}
-              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '1.25rem' }}>
+              <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '1.25rem', overflow: 'hidden' }}>
                 <div style={{ fontWeight: 700, color: 'var(--color-primary-dark)', fontSize: '0.92rem', marginBottom: '0.75rem' }}>
                   Locating Gain Margin and Phase Margin on a Bode Plot
                 </div>
 
-                <svg viewBox="0 0 720 230" style={{ width: '100%', height: 'auto', display: 'block', backgroundColor: '#FAFAFA', borderRadius: '4px' }}>
+                <svg viewBox="0 0 720 225" style={{ width: '100%', height: 'auto', display: 'block', backgroundColor: '#FAFAFA', borderRadius: '4px', overflow: 'hidden' }}>
                   {/* Top: Magnitude area */}
                   <rect x="80" y="20" width="580" height="75" fill="#FFFFFF" stroke="#E2E8F0" />
                   <line x1="80" y1="58" x2="660" y2="58" stroke="#9CA3AF" strokeWidth="1" strokeDasharray="3 3" />
@@ -620,7 +620,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
                   <line x1="400" y1="152" x2="400" y2="140" stroke="#D4AF37" strokeWidth="3" />
                   <rect x="412" y="128" width="84" height="22" rx="4" fill="#001F3F" />
                   <text x="454" y="143" textAnchor="middle" fill="#FFD700" fontSize="11" fontWeight="700" fontFamily="var(--font-mono)">PM &gt; 0°</text>
-                  <text x="400" y="215" textAnchor="middle" fill="#D4AF37" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">ωgc</text>
+                  <text x="400" y="208" textAnchor="middle" fill="#D4AF37" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">ωgc</text>
 
                   {/* wpc at x=500 where Phase = -180 */}
                   <line x1="500" y1="78" x2="500" y2="152" stroke="#2ECC40" strokeWidth="1.8" strokeDasharray="3 3" />
@@ -630,30 +630,30 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
                   <line x1="500" y1="58" x2="500" y2="78" stroke="#2ECC40" strokeWidth="3" />
                   <rect x="512" y="58" width="88" height="22" rx="4" fill="#001F3F" />
                   <text x="556" y="73" textAnchor="middle" fill="#2ECC40" fontSize="11" fontWeight="700" fontFamily="var(--font-mono)">GM &gt; 0 dB</text>
-                  <text x="500" y="215" textAnchor="middle" fill="#2ECC40" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">ωpc</text>
+                  <text x="500" y="208" textAnchor="middle" fill="#2ECC40" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">ωpc</text>
                 </svg>
               </div>
 
               {/* Two cards */}
               <div className="tutorial-margins-grid">
-                <div style={{ border: '1px solid #FCD34D', backgroundColor: '#FEF3C7', padding: '1.1rem', borderRadius: '6px' }}>
+                <div style={{ border: '1px solid #FCD34D', backgroundColor: '#FEF3C7', padding: '1.1rem', borderRadius: '6px', overflow: 'hidden' }}>
                   <strong style={{ color: '#92400E', fontSize: '0.95rem' }}>Phase Margin (PM)</strong>
                   <p style={{ margin: '0.35rem 0', fontSize: '0.85rem', color: '#78350F' }}>
                     1. Find frequency <MathView latex="\omega_{gc}" /> where magnitude is <strong>0 dB</strong>.<br />
                     2. Calculate degrees above -180°:
                   </p>
-                  <div style={{ backgroundColor: '#FFFFFF', padding: '0.5rem', borderRadius: '4px', textAlign: 'center', fontWeight: 700 }}>
+                  <div style={{ backgroundColor: '#FFFFFF', padding: '0.5rem', borderRadius: '4px', textAlign: 'center', fontWeight: 700, overflow: 'hidden' }}>
                     <MathView latex="\text{PM} = 180^\circ + \angle H(j\omega_{gc})" />
                   </div>
                 </div>
 
-                <div style={{ border: '1px solid #A7F3D0', backgroundColor: '#ECFDF5', padding: '1.1rem', borderRadius: '6px' }}>
+                <div style={{ border: '1px solid #A7F3D0', backgroundColor: '#ECFDF5', padding: '1.1rem', borderRadius: '6px', overflow: 'hidden' }}>
                   <strong style={{ color: '#065F46', fontSize: '0.95rem' }}>Gain Margin (GM)</strong>
                   <p style={{ margin: '0.35rem 0', fontSize: '0.85rem', color: '#064E3B' }}>
                     1. Find frequency <MathView latex="\omega_{pc}" /> where phase crosses <strong>-180°</strong>.<br />
                     2. Calculate dB below 0 dB:
                   </p>
-                  <div style={{ backgroundColor: '#FFFFFF', padding: '0.5rem', borderRadius: '4px', textAlign: 'center', fontWeight: 700 }}>
+                  <div style={{ backgroundColor: '#FFFFFF', padding: '0.5rem', borderRadius: '4px', textAlign: 'center', fontWeight: 700, overflow: 'hidden' }}>
                     <MathView latex="\text{GM} = -20\log_{10}|H(j\omega_{pc})|\text{ dB}" />
                   </div>
                 </div>

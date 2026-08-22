@@ -12,17 +12,17 @@ import { parseLocalNumberList } from './utils/formatUtils';
 
 export const App: React.FC = () => {
   const [inputMode, setInputMode] = useState<'poly' | 'expr' | 'zpk'>('poly');
-  const [numStr, setNumStr] = useState<string>('25');
-  const [denStr, setDenStr] = useState<string>('1 4 25');
-  const [exprStr, setExprStr] = useState<string>('25 / (s^2 + 4*s + 25)');
-  const [zpkGainStr, setZpkGainStr] = useState<string>('25');
-  const [zpkZerosStr, setZpkZerosStr] = useState<string>('');
-  const [zpkPolesStr, setZpkPolesStr] = useState<string>('-2+4.58j, -2-4.58j');
+  const [numStr, setNumStr] = useState<string>('1 1');
+  const [denStr, setDenStr] = useState<string>('1 100');
+  const [exprStr, setExprStr] = useState<string>('(s + 1) / (s + 100)');
+  const [zpkGainStr, setZpkGainStr] = useState<string>('1');
+  const [zpkZerosStr, setZpkZerosStr] = useState<string>('-1');
+  const [zpkPolesStr, setZpkPolesStr] = useState<string>('-100');
 
   const [exprError, setExprError] = useState<string | null>(null);
   const [lastValidCoeffs, setLastValidCoeffs] = useState<{ num: number[]; den: number[] }>({
-    num: [25],
-    den: [1, 4, 25]
+    num: [1, 1],
+    den: [1, 100]
   });
 
   const [omegaMinPower, setOmegaMinPower] = useState<number>(-2);

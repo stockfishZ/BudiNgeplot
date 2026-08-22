@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { BodeAnalysisResult, BodePoint } from '../utils/bodeEngine';
+import { BodeAnalysisResult, BodePoint, FACTOR_COLORS, getFactorAsymptotePoints } from '../utils/bodeEngine';
 import { exportSvg, exportPng } from '../utils/exportChart';
 import { fmtNum } from '../utils/formatUtils';
 import { Download, Image as ImageIcon, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
@@ -7,6 +7,11 @@ import { Download, Image as ImageIcon, ZoomIn, ZoomOut, RotateCcw } from 'lucide
 interface BodeChartProps {
   analysis: BodeAnalysisResult;
   showAsymptotic: boolean;
+  showFactorBreakdown?: boolean;
+  activeHoverFactorId?: string | null;
+  selectedFactorId?: string | null;
+  onHoverFactor?: (id: string | null) => void;
+  onSelectFactor?: (id: string | null) => void;
   showMargins: boolean;
   showGrid: boolean;
   omegaMinPower: number;
@@ -16,6 +21,11 @@ interface BodeChartProps {
 export const BodeChart: React.FC<BodeChartProps> = ({
   analysis,
   showAsymptotic,
+  showFactorBreakdown = true,
+  activeHoverFactorId = null,
+  selectedFactorId = null,
+  onHoverFactor,
+  onSelectFactor,
   showMargins,
   showGrid,
   omegaMinPower,
@@ -105,6 +115,20 @@ export const BodeChart: React.FC<BodeChartProps> = ({
   const magAsympPath = visiblePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(p.omega).toFixed(1)} ${getMagY(p.magAsympDb).toFixed(1)}`).join(' ');
   const phaseExactPath = visiblePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(p.omega).toFixed(1)} ${getPhaseY(p.phaseDeg).toFixed(1)}`).join(' ');
   const phaseAsympPath = visiblePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(p.omega).toFixed(1)} ${getPhaseY(p.phaseAsympDeg).toFixed(1)}`).join(' ');
+
+  // Generate individual factor asymptotic paths
+  const factorPaths = analysis.factors.map((f, idx) => {
+    const fPoints = getFactorAsymptotePoints(f, analysis.integratorOrder, analysis.gainK0, visiblePoints);
+    const magPath = visiblePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(p.omega).toFixed(1)} ${getMagY(fPoints[i].magDb).toFixed(1)}`).join(' ');
+    const phasePath = visiblePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(p.omega).toFixed(1)} ${getPhaseY(fPoints[i].phaseDeg).toFixed(1)}`).join(' ');
+    const color = FACTOR_COLORS[idx % FACTOR_COLORS.length];
+    return {
+      factor: f,
+      color,
+      magPath,
+      phasePath
+    };
+  });
 
   // Grid Ticks
   const decadeTicks: number[] = [];
@@ -272,29 +296,80 @@ export const BodeChart: React.FC<BodeChartProps> = ({
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-        <div style={{ display: 'flex', gap: '1.25rem', fontSize: '0.8rem', fontFamily: 'var(--font-sans)' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <span style={{ display: 'inline-block', width: '14px', height: '3px', backgroundColor: '#001F3F' }}></span>
-            Exact Response H(jω)
-          </span>
-          {showAsymptotic && (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '1.25rem', fontSize: '0.8rem', fontFamily: 'var(--font-sans)', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ display: 'inline-block', width: '14px', height: '2px', borderTop: '2px dashed #B45309' }}></span>
-              Asymptotic Lines
+              <span style={{ display: 'inline-block', width: '14px', height: '3px', backgroundColor: '#001F3F' }}></span>
+              Exact Response H(jω)
             </span>
-          )}
-          {showMargins && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#D4AF37' }}></span>
-              GM / PM Crossovers
-            </span>
-          )}
+            {showAsymptotic && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ display: 'inline-block', width: '14px', height: '2px', borderTop: '2px dashed #B45309' }}></span>
+                Total Asymptote
+              </span>
+            )}
+            {showMargins && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#D4AF37' }}></span>
+                GM / PM Crossovers
+              </span>
+            )}
+          </div>
         </div>
 
-        <small style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
-          💡 Drag horizontally on either chart to zoom into a frequency window
-        </small>
+        {/* Interactive Factor Breakdown Pills (Sadiku Ch. 14 step-by-step breakdown) */}
+        {showFactorBreakdown && factorPaths.length > 0 && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            flexWrap: 'wrap',
+            padding: '0.35rem 0.5rem',
+            backgroundColor: '#F8FAFC',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid #E2E8F0',
+            fontSize: '0.73rem'
+          }}>
+            <span style={{ fontWeight: '700', color: 'var(--color-primary-dark)', fontFamily: 'var(--font-heading)', marginRight: '0.2rem' }}>
+              Isolate Factor:
+            </span>
+            {factorPaths.map((fp, idx) => {
+              const isSelected = selectedFactorId === fp.factor.id;
+              const isHovered = activeHoverFactorId === fp.factor.id;
+              const isActive = isSelected || isHovered;
+              return (
+                <button
+                  key={fp.factor.id || idx}
+                  onMouseEnter={() => onHoverFactor?.(fp.factor.id)}
+                  onMouseLeave={() => onHoverFactor?.(null)}
+                  onClick={() => onSelectFactor?.(fp.factor.id)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.15rem 0.45rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: `1px solid ${isActive ? fp.color : '#CBD5E1'}`,
+                    backgroundColor: isSelected ? fp.color : isActive ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.75)',
+                    boxShadow: isActive ? `0 0 0 1.5px ${fp.color}` : 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.72rem',
+                    fontFamily: 'var(--font-mono)',
+                    color: isSelected ? '#FFFFFF' : isActive ? fp.color : '#334155',
+                    fontWeight: isActive ? 700 : 500,
+                    transition: 'all 0.12s ease'
+                  }}
+                  title={isSelected ? `Click to unlock: ${fp.factor.name}` : `Click to lock / hover to preview: ${fp.factor.name}`}
+                >
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isSelected ? '#FFFFFF' : fp.color, display: 'inline-block' }} />
+                  <span>{fp.factor.name.split('(')[0].trim()}</span>
+                  {fp.factor.omega_c > 0 && <span style={{ opacity: isSelected ? 0.9 : 0.8, fontSize: '0.68rem' }}>(ωc={fmtNum(fp.factor.omega_c, 1)})</span>}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <svg
@@ -450,7 +525,7 @@ export const BodeChart: React.FC<BodeChartProps> = ({
           return (
             <g key={`top_wc_${idx}`}>
               <line x1={x} y1={magY0 - 5} x2={x} y2={magY0} stroke="#B45309" strokeWidth="1.5" />
-              <rect x={x - 30} y={magY0 - 24} width="60" height="16" rx="3" fill="#FEF3C7" stroke="#FCD34D" strokeWidth="1" />
+              <rect x={x - 30} y={magY0 - 24} width="60" height="16" rx="3" fill="#FEF3C7" fillOpacity="0.75" stroke="#FCD34D" strokeWidth="1" />
               <text
                 x={x}
                 y={magY0 - 12}
@@ -466,11 +541,51 @@ export const BodeChart: React.FC<BodeChartProps> = ({
           );
         })}
 
-        {/* ASYMPTOTIC CURVES */}
+        {/* INDIVIDUAL FACTOR ASYMPTOTIC LINES (Sadiku Chapter 14 step-by-step components) */}
+        {showFactorBreakdown && factorPaths.map((fp) => {
+          const isHovered = activeHoverFactorId === fp.factor.id;
+          const isDimmed = activeHoverFactorId !== null && !isHovered;
+          const strokeWidth = isHovered ? 2.8 : 1.4;
+          const opacity = isHovered ? 1.0 : isDimmed ? 0.2 : 0.7;
+          const strokeDasharray = isHovered ? '0' : '4 3';
+
+          return (
+            <g key={`factor_asymp_${fp.factor.id}`}>
+              <path
+                d={fp.magPath}
+                fill="none"
+                stroke={fp.color}
+                strokeWidth={strokeWidth}
+                strokeDasharray={strokeDasharray}
+                opacity={opacity}
+                clipPath="url(#magClip)"
+                style={{ transition: 'opacity 0.15s ease, stroke-width 0.15s ease', cursor: 'pointer' }}
+                onMouseEnter={() => onHoverFactor?.(fp.factor.id)}
+                onMouseLeave={() => onHoverFactor?.(null)}
+                onClick={() => onSelectFactor?.(fp.factor.id)}
+              />
+              <path
+                d={fp.phasePath}
+                fill="none"
+                stroke={fp.color}
+                strokeWidth={strokeWidth}
+                strokeDasharray={strokeDasharray}
+                opacity={opacity}
+                clipPath="url(#phaseClip)"
+                style={{ transition: 'opacity 0.15s ease, stroke-width 0.15s ease', cursor: 'pointer' }}
+                onMouseEnter={() => onHoverFactor?.(fp.factor.id)}
+                onMouseLeave={() => onHoverFactor?.(null)}
+                onClick={() => onSelectFactor?.(fp.factor.id)}
+              />
+            </g>
+          );
+        })}
+
+        {/* ASYMPTOTIC CURVES (TOTAL COMPOSITE SUM) */}
         {showAsymptotic && (
           <>
-            <path d={magAsympPath} fill="none" stroke="#B45309" strokeWidth="1.8" strokeDasharray="6 4" opacity="0.85" clipPath="url(#magClip)" />
-            <path d={phaseAsympPath} fill="none" stroke="#B45309" strokeWidth="1.8" strokeDasharray="6 4" opacity="0.85" clipPath="url(#phaseClip)" />
+            <path d={magAsympPath} fill="none" stroke="#B45309" strokeWidth="2" strokeDasharray="6 4" opacity={activeHoverFactorId ? 0.35 : 0.85} clipPath="url(#magClip)" />
+            <path d={phaseAsympPath} fill="none" stroke="#B45309" strokeWidth="2" strokeDasharray="6 4" opacity={activeHoverFactorId ? 0.35 : 0.85} clipPath="url(#phaseClip)" />
 
             {/* Subtle Corner Frequency Dots */}
             {analysis.factors.filter(f => f.omega_c > 0).map((f, idx) => {

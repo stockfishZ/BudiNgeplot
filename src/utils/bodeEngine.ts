@@ -559,3 +559,61 @@ export function formatPolyLatex(coeffs: number[]): string {
 
   return terms.join('') || '0';
 }
+
+export const FACTOR_COLORS = [
+  '#4F46E5', // Indigo
+  '#EC4899', // Pink
+  '#059669', // Emerald
+  '#D97706', // Amber
+  '#8B5CF6', // Purple
+  '#0891B2', // Cyan
+  '#DC2626', // Red
+  '#2563EB', // Blue
+  '#10B981', // Teal
+  '#F97316'  // Orange
+];
+
+/**
+ * Calculates individual asymptotic straight-line points for a single Bode factor
+ * according to Alexander & Sadiku Chapter 14.4
+ */
+export function getFactorAsymptotePoints(
+  factor: BodeFactor,
+  integratorOrder: number,
+  k0: number,
+  points: BodePoint[]
+): { magDb: number; phaseDeg: number }[] {
+  return points.map(p => {
+    const omega = p.omega;
+    let magDb = 0;
+    let phaseDeg = 0;
+
+    if (factor.type === 'gain') {
+      magDb = 20 * Math.log10(Math.max(Math.abs(k0), 1e-12));
+      phaseDeg = k0 < 0 ? -180 : 0;
+    } else if (factor.type === 'origin') {
+      magDb = -20 * integratorOrder * Math.log10(omega);
+      phaseDeg = -90 * integratorOrder;
+    } else if (factor.omega_c > 0) {
+      if (omega >= factor.omega_c) {
+        magDb = factor.slopeDbDec * Math.log10(omega / factor.omega_c);
+      } else {
+        magDb = 0;
+      }
+
+      const wLow = factor.omega_c / 10;
+      const wHigh = factor.omega_c * 10;
+      if (omega <= wLow) {
+        phaseDeg = factor.phaseLow;
+      } else if (omega >= wHigh) {
+        phaseDeg = factor.phaseHigh;
+      } else {
+        const frac = Math.log10(omega / wLow) / 2;
+        phaseDeg = factor.phaseLow + frac * (factor.phaseHigh - factor.phaseLow);
+      }
+    }
+
+    return { magDb, phaseDeg };
+  });
+}
+

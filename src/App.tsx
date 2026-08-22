@@ -4,6 +4,7 @@ import { ControlPanel } from './components/ControlPanel';
 import { BodeChart } from './components/BodeChart';
 import { PoleZeroMap } from './components/PoleZeroMap';
 import { HomeworkBreakdown } from './components/HomeworkBreakdown';
+import { TutorialModal } from './components/TutorialModal';
 import { analyzeTransferFunction, BodeAnalysisResult } from './utils/bodeEngine';
 import { parseTFString } from './utils/stringParser';
 import { parseZPK, zpkToPolynomials } from './utils/zpkParser';
@@ -28,11 +29,19 @@ export const App: React.FC = () => {
   const [omegaMaxPower, setOmegaMaxPower] = useState<number>(4);
 
   const [showAsymptotic, setShowAsymptotic] = useState<boolean>(true);
+  const [showFactorBreakdown, setShowFactorBreakdown] = useState<boolean>(true);
+  const [selectedFactorId, setSelectedFactorId] = useState<string | null>(null);
+  const [hoveredFactorId, setHoveredFactorId] = useState<string | null>(null);
   const [showMargins, setShowMargins] = useState<boolean>(true);
   const [showGrid, setShowGrid] = useState<boolean>(true);
   const [showPoleZeroMap, setShowPoleZeroMap] = useState<boolean>(true);
+  const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(false);
 
-  const [reportMode, setReportMode] = useState<boolean>(false);
+  const handleSelectFactor = (id: string | null) => {
+    setSelectedFactorId(prev => (prev === id || id === null ? null : id));
+  };
+
+  const activeFactorId = hoveredFactorId !== null ? hoveredFactorId : selectedFactorId;
 
   // Compute Bode Analysis Result reactively
   const analysisResult = useMemo<BodeAnalysisResult>(() => {
@@ -77,19 +86,11 @@ export const App: React.FC = () => {
     }
 
     return analyzeTransferFunction(numCoeffs, denCoeffs, omegaMinPower, omegaMaxPower, 400);
-  }, [inputMode, numStr, denStr, exprStr, zpkGainStr, zpkZerosStr, zpkPolesStr, omegaMinPower, omegaMaxPower]);
-
-  const handlePrint = () => {
-    window.print();
-  };
+  }, [inputMode, numStr, denStr, exprStr, zpkGainStr, zpkZerosStr, zpkPolesStr, omegaMinPower, omegaMaxPower, lastValidCoeffs]);
 
   return (
     <div style={{ minHeight: '100dvh', backgroundColor: 'var(--color-surface-muted)' }}>
-      <Header
-        reportMode={reportMode}
-        onToggleReportMode={() => setReportMode(!reportMode)}
-        onPrint={handlePrint}
-      />
+      <Header onOpenTutorial={() => setIsTutorialOpen(true)} />
 
       <main className="container" style={{ padding: '1.5rem 1rem' }}>
         {/* Printable Header for Homework Submissions */}
@@ -100,68 +101,87 @@ export const App: React.FC = () => {
           </p>
         </div>
 
-        {/* Controls (Hidden during print) */}
-        {!reportMode && (
-          <ControlPanel
-            numStr={numStr}
-            denStr={denStr}
-            exprStr={exprStr}
-            zpkGainStr={zpkGainStr}
-            zpkZerosStr={zpkZerosStr}
-            zpkPolesStr={zpkPolesStr}
-            inputMode={inputMode}
-            exprError={exprError}
-            onNumChange={setNumStr}
-            onDenChange={setDenStr}
-            onExprChange={setExprStr}
-            onZpkGainChange={setZpkGainStr}
-            onZpkZerosChange={setZpkZerosStr}
-            onZpkPolesChange={setZpkPolesStr}
-            onInputModeChange={setInputMode}
+        {/* Transfer Function Controls Panel */}
+        <ControlPanel
+          numStr={numStr}
+          denStr={denStr}
+          exprStr={exprStr}
+          zpkGainStr={zpkGainStr}
+          zpkZerosStr={zpkZerosStr}
+          zpkPolesStr={zpkPolesStr}
+          inputMode={inputMode}
+          exprError={exprError}
+          onNumChange={setNumStr}
+          onDenChange={setDenStr}
+          onExprChange={setExprStr}
+          onZpkGainChange={setZpkGainStr}
+          onZpkZerosChange={setZpkZerosStr}
+          onZpkPolesChange={setZpkPolesStr}
+          onInputModeChange={setInputMode}
+          omegaMinPower={omegaMinPower}
+          omegaMaxPower={omegaMaxPower}
+          onOmegaMinChange={setOmegaMinPower}
+          onOmegaMaxChange={setOmegaMaxPower}
+          showAsymptotic={showAsymptotic}
+          showFactorBreakdown={showFactorBreakdown}
+          showMargins={showMargins}
+          showGrid={showGrid}
+          showPoleZeroMap={showPoleZeroMap}
+          onToggleAsymptotic={() => setShowAsymptotic(!showAsymptotic)}
+          onToggleFactorBreakdown={() => setShowFactorBreakdown(!showFactorBreakdown)}
+          onToggleMargins={() => setShowMargins(!showMargins)}
+          onToggleGrid={() => setShowGrid(!showGrid)}
+          onTogglePoleZeroMap={() => setShowPoleZeroMap(!showPoleZeroMap)}
+        />
+
+        {/* Main Grid: Bode Chart & S-Plane Map */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: showPoleZeroMap ? '1fr 340px' : '1fr',
+            gap: '1.25rem',
+            alignItems: 'start'
+          }}
+        >
+          <BodeChart
+            analysis={analysisResult}
             omegaMinPower={omegaMinPower}
             omegaMaxPower={omegaMaxPower}
-            onOmegaMinChange={setOmegaMinPower}
-            onOmegaMaxChange={setOmegaMaxPower}
             showAsymptotic={showAsymptotic}
+            showFactorBreakdown={showFactorBreakdown}
+            activeHoverFactorId={activeFactorId}
+            selectedFactorId={selectedFactorId}
+            onHoverFactor={setHoveredFactorId}
+            onSelectFactor={handleSelectFactor}
             showMargins={showMargins}
             showGrid={showGrid}
-            showPoleZeroMap={showPoleZeroMap}
-            onToggleAsymptotic={() => setShowAsymptotic(!showAsymptotic)}
-            onToggleMargins={() => setShowMargins(!showMargins)}
-            onToggleGrid={() => setShowGrid(!showGrid)}
-            onTogglePoleZeroMap={() => setShowPoleZeroMap(!showPoleZeroMap)}
           />
-        )}
-
-        {/* Main Grid Visualizations */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: showPoleZeroMap ? '1fr 340px' : '1fr',
-          gap: '1.25rem',
-          marginTop: reportMode ? '0' : '1.25rem'
-        }}>
-          <div>
-            <BodeChart
-              analysis={analysisResult}
-              showAsymptotic={showAsymptotic}
-              showMargins={showMargins}
-              showGrid={showGrid}
-              omegaMinPower={omegaMinPower}
-              omegaMaxPower={omegaMaxPower}
-            />
-          </div>
 
           {showPoleZeroMap && (
-            <div>
-              <PoleZeroMap poles={analysisResult.poles} zeros={analysisResult.zeros} />
-            </div>
+            <PoleZeroMap
+              poles={analysisResult.poles}
+              zeros={analysisResult.zeros}
+            />
           )}
         </div>
 
-        {/* Step-by-Step Breakdown */}
-        <HomeworkBreakdown analysis={analysisResult} />
+        {/* Step-by-step Solution Breakdown for Homework */}
+        <HomeworkBreakdown
+          analysis={analysisResult}
+          activeHoverFactorId={activeFactorId}
+          selectedFactorId={selectedFactorId}
+          onHoverFactor={setHoveredFactorId}
+          onSelectFactor={handleSelectFactor}
+        />
       </main>
+
+      {/* Interactive Sadiku Bode Plot Tutorial Modal */}
+      <TutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+      />
     </div>
   );
 };
+
 export default App;

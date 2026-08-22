@@ -22,10 +22,12 @@ interface ControlPanelProps {
   onOmegaMinChange: (val: number) => void;
   onOmegaMaxChange: (val: number) => void;
   showAsymptotic: boolean;
+  showFactorBreakdown: boolean;
   showMargins: boolean;
   showGrid: boolean;
   showPoleZeroMap: boolean;
   onToggleAsymptotic: () => void;
+  onToggleFactorBreakdown: () => void;
   onToggleMargins: () => void;
   onToggleGrid: () => void;
   onTogglePoleZeroMap: () => void;
@@ -52,10 +54,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onOmegaMinChange,
   onOmegaMaxChange,
   showAsymptotic,
+  showFactorBreakdown,
   showMargins,
   showGrid,
   showPoleZeroMap,
   onToggleAsymptotic,
+  onToggleFactorBreakdown,
   onToggleMargins,
   onToggleGrid,
   onTogglePoleZeroMap
@@ -72,19 +76,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             className={`btn btn-sm ${inputMode === 'poly' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => onInputModeChange('poly')}
           >
-            Polynomial [Coeffs]
+            Polynomial
           </button>
           <button
             className={`btn btn-sm ${inputMode === 'expr' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => onInputModeChange('expr')}
           >
-            Expression [String]
+            Expression
           </button>
           <button
             className={`btn btn-sm ${inputMode === 'zpk' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => onInputModeChange('zpk')}
           >
-            ZPK Form [Zeros/Poles/K]
+            Zero Pole
           </button>
         </div>
       </div>
@@ -254,7 +258,17 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             onChange={onToggleAsymptotic}
             style={{ accentColor: 'var(--color-primary-dark)' }}
           />
-          Asymptotic Line
+          Total Asymptote
+        </label>
+
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+          <input
+            type="checkbox"
+            checked={showFactorBreakdown}
+            onChange={onToggleFactorBreakdown}
+            style={{ accentColor: 'var(--color-primary-dark)' }}
+          />
+          Individual Factor Lines
         </label>
 
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>

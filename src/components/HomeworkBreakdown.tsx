@@ -1,14 +1,24 @@
 import React from 'react';
-import { BodeAnalysisResult } from '../utils/bodeEngine';
+import { BodeAnalysisResult, FACTOR_COLORS } from '../utils/bodeEngine';
 import { MathView } from './MathView';
 import { fmtNum } from '../utils/formatUtils';
-import { FileText, AlertTriangle } from 'lucide-react';
+import { FileText, AlertTriangle, Sparkles } from 'lucide-react';
 
 interface HomeworkBreakdownProps {
   analysis: BodeAnalysisResult;
+  activeHoverFactorId?: string | null;
+  selectedFactorId?: string | null;
+  onHoverFactor?: (id: string | null) => void;
+  onSelectFactor?: (id: string | null) => void;
 }
 
-export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({ analysis }) => {
+export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({
+  analysis,
+  activeHoverFactorId = null,
+  selectedFactorId = null,
+  onHoverFactor,
+  onSelectFactor
+}) => {
   const getStatusBadge = () => {
     switch (analysis.stabilityStatus) {
       case 'Stable':
@@ -123,7 +133,7 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({ analysis }
       </div>
 
       {/* Factor Breakdown Table */}
-      <h4 style={{ fontSize: '0.95rem', color: 'var(--color-primary-dark)', marginBottom: '0.5rem' }}>
+      <h4 style={{ fontSize: '0.95rem', color: 'var(--color-primary-dark)', margin: '0 0 0.5rem 0' }}>
         Individual Factor Contributions & Corner Frequencies
       </h4>
 
@@ -138,25 +148,55 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({ analysis }
           </tr>
         </thead>
         <tbody>
-          {analysis.factors.map((f, i) => (
-            <tr key={i}>
-              <td style={{ fontWeight: '600' }}>
-                <MathView latex={f.latex} />
-              </td>
-              <td style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-muted)' }}>
-                {f.name}
-              </td>
-              <td>
-                {f.omega_c > 0 ? `${fmtNum(f.omega_c, 2)} rad/s` : '—'}
-              </td>
-              <td style={{ color: f.slopeDbDec > 0 ? 'green' : f.slopeDbDec < 0 ? 'red' : 'inherit', fontWeight: 'bold' }}>
-                {f.slopeDbDec > 0 ? `+${f.slopeDbDec}` : f.slopeDbDec} dB/dec
-              </td>
-              <td>
-                {fmtNum(f.phaseLow, 0)}° → {fmtNum(f.phaseHigh, 0)}°
-              </td>
-            </tr>
-          ))}
+          {analysis.factors.map((f, i) => {
+            const color = FACTOR_COLORS[i % FACTOR_COLORS.length];
+            const isSelected = selectedFactorId === f.id;
+            const isHovered = activeHoverFactorId === f.id;
+
+            return (
+              <tr
+                key={f.id || i}
+                onMouseEnter={() => onHoverFactor?.(f.id)}
+                onMouseLeave={() => onHoverFactor?.(null)}
+                onClick={() => onSelectFactor?.(f.id)}
+                style={{
+                  backgroundColor: isSelected ? 'rgba(79, 70, 229, 0.14)' : isHovered ? 'rgba(79, 70, 229, 0.06)' : undefined,
+                  transition: 'background-color 0.15s ease',
+                  cursor: 'pointer',
+                  outline: isSelected ? `2px solid ${color}` : undefined
+                }}
+                title={isSelected ? "Click to unlock isolation" : "Click to lock / hover to preview this factor"}
+              >
+                <td style={{ fontWeight: '600' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: color,
+                        flexShrink: 0
+                      }}
+                    />
+                    <MathView latex={f.latex} />
+                  </div>
+                </td>
+                <td style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-muted)' }}>
+                  {f.name}
+                </td>
+                <td>
+                  {f.omega_c > 0 ? `${fmtNum(f.omega_c, 2)} rad/s` : '—'}
+                </td>
+                <td style={{ color: f.slopeDbDec > 0 ? 'green' : f.slopeDbDec < 0 ? 'red' : 'inherit', fontWeight: 'bold' }}>
+                  {f.slopeDbDec > 0 ? `+${f.slopeDbDec}` : f.slopeDbDec} dB/dec
+                </td>
+                <td>
+                  {fmtNum(f.phaseLow, 0)}° → {fmtNum(f.phaseHigh, 0)}°
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 

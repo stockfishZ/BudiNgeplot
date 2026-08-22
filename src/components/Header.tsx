@@ -1,13 +1,11 @@
 import React from 'react';
-import { Activity, BookOpen, Download, Printer } from 'lucide-react';
+import { Activity, BookOpen } from 'lucide-react';
 
 interface HeaderProps {
-  reportMode: boolean;
-  onToggleReportMode: () => void;
-  onPrint: () => void;
+  onOpenTutorial?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ reportMode, onToggleReportMode, onPrint }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenTutorial }) => {
   return (
     <header style={{
       backgroundColor: 'var(--color-primary-dark)',
@@ -56,26 +54,26 @@ export const Header: React.FC<HeaderProps> = ({ reportMode, onToggleReportMode, 
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {onOpenTutorial && (
           <button
-            onClick={onToggleReportMode}
-            className={`btn ${reportMode ? 'btn-gold' : 'btn-secondary'}`}
-            style={{ fontSize: '0.825rem' }}
+            onClick={onOpenTutorial}
+            className="btn btn-gold"
+            style={{
+              fontSize: '0.825rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.45rem 0.9rem',
+              fontWeight: 700,
+              boxShadow: '0 2px 8px rgba(255, 215, 0, 0.25)',
+              cursor: 'pointer'
+            }}
+            title="Drawing Bode Plots Guide"
           >
-            <BookOpen size={16} />
-            {reportMode ? 'Interactive View' : 'Report View'}
+            <BookOpen size={16} strokeWidth={2.3} />
+            <span>Quick Tutor</span>
           </button>
-          
-          <button
-            onClick={onPrint}
-            className="btn btn-secondary"
-            style={{ fontSize: '0.825rem' }}
-            title="Print / Save PDF"
-          >
-            <Printer size={16} />
-            Print / PDF
-          </button>
-        </div>
+        )}
       </div>
     </header>
   );

@@ -133,7 +133,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {inputMode === 'expr' && (
         <div className="form-group">
           <label className="form-label">
-            Math Expression H(s)
+            Express H(s)
           </label>
           <input
             type="text"

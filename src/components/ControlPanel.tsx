@@ -73,16 +73,16 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         </h2>
         <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
           <button
-            className={`btn btn-sm ${inputMode === 'poly' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => onInputModeChange('poly')}
-          >
-            Polynomial
-          </button>
-          <button
             className={`btn btn-sm ${inputMode === 'expr' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => onInputModeChange('expr')}
           >
             Expression
+          </button>
+          <button
+            className={`btn btn-sm ${inputMode === 'poly' ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => onInputModeChange('poly')}
+          >
+            Polynomial
           </button>
           <button
             className={`btn btn-sm ${inputMode === 'zpk' ? 'btn-primary' : 'btn-secondary'}`}

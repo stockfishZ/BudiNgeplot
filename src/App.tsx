@@ -11,7 +11,7 @@ import { parseZPK, zpkToPolynomials } from './utils/zpkParser';
 import { parseLocalNumberList } from './utils/formatUtils';
 
 export const App: React.FC = () => {
-  const [inputMode, setInputMode] = useState<'poly' | 'expr' | 'zpk'>('poly');
+  const [inputMode, setInputMode] = useState<'poly' | 'expr' | 'zpk'>('expr');
   const [numStr, setNumStr] = useState<string>('1 1');
   const [denStr, setDenStr] = useState<string>('1 100');
   const [exprStr, setExprStr] = useState<string>('(s + 1) / (s + 100)');

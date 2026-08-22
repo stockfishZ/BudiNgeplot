@@ -217,10 +217,11 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({
               <span>Frequency where <MathView latex="|H(j\omega_{gc})| = 0\text{ dB} = 1,0" />.</span>
             </div>
             {analysis.omega_gc !== null ? (
-              <div style={{ margin: '0.35rem 0 0.5rem 1rem' }}>
+              <div style={{ margin: '0.35rem 0 0.5rem 0.5rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
                 <MathView latex={`\\omega_{gc} = ${fmtNum(analysis.omega_gc, 3)} \\text{ rad/s}`} />
-                <br />
-                <MathView latex={`\\text{PM} = 180^\\circ + \\angle H(j\\omega_{gc}) = 180^\\circ + (${fmtNum(analysis.phaseMargin! - 180, 1)}^\\circ) = \\mathbf{${fmtNum(analysis.phaseMargin!, 1)}^\\circ}`} />
+                <div style={{ marginTop: '0.35rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
+                  <MathView latex={`\\text{PM} = 180^\\circ + \\angle H(j\\omega_{gc}) = 180^\\circ + (${fmtNum(analysis.phaseMargin! - 180, 1)}^\\circ) = \\mathbf{${fmtNum(analysis.phaseMargin!, 1)}^\\circ}`} />
+                </div>
               </div>
             ) : (
               <span style={{ color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>No 0 dB crossover detected within frequency range.</span>
@@ -233,10 +234,11 @@ export const HomeworkBreakdown: React.FC<HomeworkBreakdownProps> = ({
               <span>Frequency where <MathView latex="\angle H(j\omega_{pc}) = -180^\circ" />.</span>
             </div>
             {analysis.omega_pc !== null ? (
-              <div style={{ margin: '0.35rem 0 0.5rem 1rem' }}>
+              <div style={{ margin: '0.35rem 0 0.5rem 0.5rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
                 <MathView latex={`\\omega_{pc} = ${fmtNum(analysis.omega_pc, 3)} \\text{ rad/s}`} />
-                <br />
-                <MathView latex={`\\text{GM}_{\\text{dB}} = -20 \\log_{10} |H(j\\omega_{pc})| = \\mathbf{${fmtNum(analysis.gainMarginDb!, 2)} \\text{ dB}} \\quad (\\text{Linear GM} = ${fmtNum(analysis.gainMarginLinear, 2)})`} />
+                <div style={{ marginTop: '0.35rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
+                  <MathView latex={`\\text{GM}_{\\text{dB}} = -20 \\log_{10} |H(j\\omega_{pc})| = \\mathbf{${fmtNum(analysis.gainMarginDb!, 2)} \\text{ dB}} \\quad (\\text{Linear GM} = ${fmtNum(analysis.gainMarginLinear, 2)})`} />
+                </div>
               </div>
             ) : (
               <span style={{ color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>Phase does not cross -180° (Gain Margin is Infinite ∞).</span>

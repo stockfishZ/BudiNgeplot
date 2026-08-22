@@ -268,7 +268,7 @@ export const BodeChart: React.FC<BodeChartProps> = ({
         </h3>
 
         {/* Synchronized Zoom & Image Export Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', paddingRight: '0.5rem', borderRight: '1px solid #E5E7EB' }}>
             <button className="btn btn-secondary btn-sm no-print" onClick={handleZoomIn} title="Zoom In Synchronously (+)">
               <ZoomIn size={14} />

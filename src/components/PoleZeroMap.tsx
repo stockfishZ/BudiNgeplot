@@ -120,14 +120,14 @@ export const PoleZeroMap: React.FC<PoleZeroMapProps> = ({ poles, zeros }) => {
         })}
       </svg>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '0.5rem', fontSize: '0.75rem', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem', fontSize: '0.75rem', fontFamily: 'var(--font-sans)' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <span style={{ color: '#001F3F', fontWeight: 'bold', fontSize: '1rem' }}>✕</span> Pole
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <span style={{ width: '10px', height: '10px', borderRadius: '50%', border: '2px solid #D4AF37', display: 'inline-block' }}></span> Zero
         </span>
-        <span style={{ color: 'var(--color-text-muted)' }}>
+        <span style={{ color: 'var(--color-text-muted)', textAlign: 'center' }}>
           Green = LHP Stable | Red = RHP Unstable
         </span>
       </div>

@@ -28,10 +28,22 @@
   --transition-fast: all 0.2s ease-out;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -41,6 +53,30 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100dvh;
+}
+
+/* KaTeX Overflow & Responsive Styling */
+.katex-display {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  -webkit-overflow-scrolling: touch !important;
+  margin: 0.35rem 0 !important;
+  padding-bottom: 2px !important;
+}
+
+.katex {
+  max-width: 100%;
+  font-size: 1.02em;
+}
+
+.math-view {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  vertical-align: middle;
 }
 
 /* Prevent text selection highlight during interactive chart drag-zoom */

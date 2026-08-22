@@ -30,11 +30,12 @@ export const MathView: React.FC<MathViewProps> = ({ latex, displayMode = false, 
       ref={containerRef}
       className={`math-view ${className}`}
       style={{
-        whiteSpace: 'nowrap',
         display: displayMode ? 'block' : 'inline-block',
         verticalAlign: displayMode ? 'unset' : 'middle',
         maxWidth: '100%',
-        overflowX: displayMode ? 'auto' : 'visible',
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        WebkitOverflowScrolling: 'touch',
       }}
     />
   );

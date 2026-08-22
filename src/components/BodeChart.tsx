@@ -663,7 +663,7 @@ export const BodeChart: React.FC<BodeChartProps> = ({
 
         {/* AXIS TITLES */}
         <text x={paddingLeft + plotWidth / 2} y={phaseY0 + phasePlotHeight + 35} textAnchor="middle" fill="#1F2937" fontFamily="var(--font-heading)" fontSize="12" fontWeight="700">
-          Frequency ω (rad/s) [Log Scale]
+          Frequency ω (rad/s)
         </text>
 
         <text x={18} y={magY0 + magPlotHeight / 2} textAnchor="middle" fill="#001F3F" fontFamily="var(--font-heading)" fontSize="12" fontWeight="700" transform={`rotate(-90 18 ${magY0 + magPlotHeight / 2})`}>

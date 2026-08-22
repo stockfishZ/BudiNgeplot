@@ -532,8 +532,8 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
               </div>
 
               {/* Table of Regions */}
-              <div style={{ overflowX: 'auto' }}>
-                <table className="hw-table" style={{ fontSize: '0.85rem' }}>
+              <div className="table-responsive">
+                <table className="hw-table" style={{ fontSize: '0.85rem', marginTop: 0 }}>
                   <thead>
                     <tr>
                       <th>Region</th>
@@ -595,16 +595,16 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
                   Locating Gain Margin and Phase Margin on a Bode Plot
                 </div>
 
-                <svg viewBox="0 0 720 220" style={{ width: '100%', height: 'auto', display: 'block', backgroundColor: '#FAFAFA', borderRadius: '4px' }}>
+                <svg viewBox="0 0 720 230" style={{ width: '100%', height: 'auto', display: 'block', backgroundColor: '#FAFAFA', borderRadius: '4px' }}>
                   {/* Top: Magnitude area */}
                   <rect x="80" y="20" width="580" height="75" fill="#FFFFFF" stroke="#E2E8F0" />
                   <line x1="80" y1="58" x2="660" y2="58" stroke="#9CA3AF" strokeWidth="1" strokeDasharray="3 3" />
-                  <text x="70" y="61" textAnchor="end" fill="#001F3F" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)">0 dB</text>
+                  <text x="68" y="62" textAnchor="end" fill="#001F3F" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">0 dB</text>
 
                   {/* Bottom: Phase area */}
                   <rect x="80" y="115" width="580" height="75" fill="#FFFFFF" stroke="#E2E8F0" />
                   <line x1="80" y1="152" x2="660" y2="152" stroke="#9CA3AF" strokeWidth="1" strokeDasharray="3 3" />
-                  <text x="70" y="155" textAnchor="end" fill="#001F3F" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)">-180°</text>
+                  <text x="68" y="156" textAnchor="end" fill="#001F3F" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">-180°</text>
 
                   {/* Magnitude curve */}
                   <path d="M 110 32 Q 320 48, 400 58 T 620 90" fill="none" stroke="#001F3F" strokeWidth="2.5" />
@@ -618,9 +618,9 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
                   <circle cx="400" cy="140" r="4.5" fill="#D4AF37" stroke="#001F3F" strokeWidth="1.5" />
                   {/* PM vertical line */}
                   <line x1="400" y1="152" x2="400" y2="140" stroke="#D4AF37" strokeWidth="3" />
-                  <rect x="412" y="132" width="70" height="18" rx="3" fill="#001F3F" />
-                  <text x="447" y="145" textAnchor="middle" fill="#FFD700" fontSize="9.5" fontWeight="700" fontFamily="var(--font-mono)">PM &gt; 0°</text>
-                  <text x="400" y="204" textAnchor="middle" fill="#D4AF37" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)">ωgc</text>
+                  <rect x="412" y="128" width="84" height="22" rx="4" fill="#001F3F" />
+                  <text x="454" y="143" textAnchor="middle" fill="#FFD700" fontSize="11" fontWeight="700" fontFamily="var(--font-mono)">PM &gt; 0°</text>
+                  <text x="400" y="215" textAnchor="middle" fill="#D4AF37" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">ωgc</text>
 
                   {/* wpc at x=500 where Phase = -180 */}
                   <line x1="500" y1="78" x2="500" y2="152" stroke="#2ECC40" strokeWidth="1.8" strokeDasharray="3 3" />
@@ -628,14 +628,14 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose })
                   <circle cx="500" cy="78" r="4.5" fill="#2ECC40" stroke="#001F3F" strokeWidth="1.5" />
                   {/* GM vertical line */}
                   <line x1="500" y1="58" x2="500" y2="78" stroke="#2ECC40" strokeWidth="3" />
-                  <rect x="512" y="62" width="70" height="18" rx="3" fill="#001F3F" />
-                  <text x="547" y="75" textAnchor="middle" fill="#2ECC40" fontSize="9.5" fontWeight="700" fontFamily="var(--font-mono)">GM &gt; 0 dB</text>
-                  <text x="500" y="204" textAnchor="middle" fill="#2ECC40" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)">ωpc</text>
+                  <rect x="512" y="58" width="88" height="22" rx="4" fill="#001F3F" />
+                  <text x="556" y="73" textAnchor="middle" fill="#2ECC40" fontSize="11" fontWeight="700" fontFamily="var(--font-mono)">GM &gt; 0 dB</text>
+                  <text x="500" y="215" textAnchor="middle" fill="#2ECC40" fontSize="12" fontWeight="700" fontFamily="var(--font-mono)">ωpc</text>
                 </svg>
               </div>
 
               {/* Two cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+              <div className="tutorial-margins-grid">
                 <div style={{ border: '1px solid #FCD34D', backgroundColor: '#FEF3C7', padding: '1.1rem', borderRadius: '6px' }}>
                   <strong style={{ color: '#92400E', fontSize: '0.95rem' }}>Phase Margin (PM)</strong>
                   <p style={{ margin: '0.35rem 0', fontSize: '0.85rem', color: '#78350F' }}>

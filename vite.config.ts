@@ -15,8 +15,6 @@ export default defineConfig({
         copyFileSync('dist/src/index.html', 'dist/index.html');
         writeFileSync('.nojekyll', '');
         writeFileSync('dist/.nojekyll', '');
-        writeFileSync('CNAME', 'budingeplot.com\n');
-        writeFileSync('dist/CNAME', 'budingeplot.com\n');
       }
     }
   ],

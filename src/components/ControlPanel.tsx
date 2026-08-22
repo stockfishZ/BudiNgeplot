@@ -69,7 +69,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       <div className="card-header">
         <h2 className="card-title">
           <Sliders size={18} />
-          Transfer Function Controls
+          Transfer Function
         </h2>
         <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
           <button

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { BodeAnalysisResult, BodePoint, FACTOR_COLORS, getFactorAsymptotePoints } from '../utils/bodeEngine';
-import { exportSvg, exportPng } from '../utils/exportChart';
+import { exportPng } from '../utils/exportChart';
 import { fmtNum } from '../utils/formatUtils';
-import { Download, Image as ImageIcon, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Image as ImageIcon, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 interface BodeChartProps {
   analysis: BodeAnalysisResult;
@@ -260,10 +260,6 @@ export const BodeChart: React.FC<BodeChartProps> = ({
     if (svgRef.current) exportPng(svgRef.current, 'bode_plot_budingeplot.png');
   };
 
-  const handleExportSvg = () => {
-    if (svgRef.current) exportSvg(svgRef.current, 'bode_plot_budingeplot.svg');
-  };
-
   return (
     <div className="card" style={{ padding: '1rem', position: 'relative' }} ref={containerRef}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -289,9 +285,6 @@ export const BodeChart: React.FC<BodeChartProps> = ({
 
           <button className="btn btn-secondary btn-sm no-print" onClick={handleExportPng} title="Export High-Res PNG Image">
             <ImageIcon size={14} /> PNG
-          </button>
-          <button className="btn btn-secondary btn-sm no-print" onClick={handleExportSvg} title="Export Vector SVG File">
-            <Download size={14} /> SVG
           </button>
         </div>
       </div>
